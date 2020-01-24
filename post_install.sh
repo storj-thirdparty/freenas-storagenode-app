@@ -8,6 +8,8 @@ LOGFILE="/var/log/StorJ"
 BASEDIR="/root/storj_base"
 STORBIN="/usr/local/www/storagenode/scripts/storagenode"
 CNFFILE="/usr/local/www/storagenode/scripts/output.csv"
+CFGDIR="$BASEDIR/config"
+YMLFILE="$CFGDIR/config.yaml"
 
 if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
@@ -15,7 +17,6 @@ fi;
 cp -R "${pdir}/overlay/usr/local/www/storagenode" /usr/local/www/
 chown -R ${user} /usr/local/www/storagenode
 cp -R "${pdir}/overlay/root/storj_base" /root
-chown -R ${user} /root/storj_base
 
 touch $LOGFILE
 chmod 666 $LOGFILE
@@ -45,15 +46,17 @@ curl -o $STORBIN https://alpha.transfer.sh/YzDaj/storagenode
 chmod a+x $STORBIN
 echo `date` "Running storagenode binary for setup" >> $LOGFILE
 $STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
+chmod a+rwx $CFGDIR
+chmod a+w $YMLFILE
+chown -R ${user} $BASEDIR
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
-chown -R ${user}:${user} /usr/local/www/storagenode
-
-chmod a+rw $CNFFILE
 # Temporary Hack (corrected after final directory of loading is validated)
-cp $CNFFILE /usr/local/www/storagenode
+cp -p $CNFFILE /usr/local/www/storagenode
+chown -R ${user} /usr/local/www/storagenode
+chmod a+rw $CNFFILE
 
 # Enable the service
 sysrc -f /etc/rc.conf nginx_enable=YES
