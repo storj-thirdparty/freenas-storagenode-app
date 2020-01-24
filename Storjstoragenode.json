@@ -1,5 +1,5 @@
 {
-  "name": "storj",
+  "name": "Storjstoragenode",
   "plugin_schema": "2",
   "release": "11.2-RELEASE",
   "artifact": "https://github.com/utropicmedia/storj-freenas",
