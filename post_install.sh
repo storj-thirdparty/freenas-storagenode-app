@@ -3,18 +3,30 @@
 sa="/root/storj"
 pdir="${0%/*}"
 user="www"
-
+module="StorJ"
+LOGFILE="/var/log/StorJ"
+BASEDIR="/root/storj_base"
+STORBIN="/usr/local/www/storagenode/scripts/storagenode"
+CNFFILE="/usr/local/www/storagenode/scripts/output.csv"
 
 if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
 fi;
 cp -R "${pdir}/overlay/usr/local/www/storagenode" /usr/local/www/
 chown -R ${user} /usr/local/www/storagenode
-if [ ! -d "/root" ]; then
-  mkdir -p "/root" /root/storj_base
-fi;
 cp -R "${pdir}/overlay/root/storj_base" /root
 chown -R ${user} /root/storj_base
+
+touch $LOGFILE
+chmod 666 $LOGFILE
+
+echo `date` "Setup started from dir $0 => $pdir "	>> $LOGFILE
+echo `date` "BASEDIR($BASEDIR)"				>> $LOGFILE
+echo `date` "STORBIN($STORBIN)"				>> $LOGFILE
+echo `date` "LOGFILE($LOGFILE)"				>> $LOGFILE
+echo `date` "CNFFILE($CNFFILE)"				>> $LOGFILE
+echo `date` "user($user)"				>> $LOGFILE
+echo `date` "RUnning in context of user:" `id`		>> $LOGFILE
 
 if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-jail
 
@@ -28,13 +40,20 @@ if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-j
 
 fi
 
-curl -o /usr/local/www/storagenode/scripts/storagenode https://alpha.transfer.sh/YzDaj/storagenode
-chmod a+x /usr/local/www/storagenode/scripts/storagenode 
+# Fetch storagenode binary and execute for basic content creation
+curl -o $STORBIN https://alpha.transfer.sh/YzDaj/storagenode
+chmod a+x $STORBIN
+echo `date` "Running storagenode binary for setup" >> $LOGFILE
+$STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
 chown -R ${user}:${user} /usr/local/www/storagenode
+
+chmod a+rw $CNFFILE
+# Temporary Hack (corrected after final directory of loading is validated)
+cp $CNFFILE /usr/local/www/storagenode
 
 # Enable the service
 sysrc -f /etc/rc.conf nginx_enable=YES
@@ -62,6 +81,9 @@ if [ "${1}" = "standard" ]; then
     echo
         echo " ${cyn}Storj storagenode jail ui ${end}: ${grn}http://${v2srv_ip}${end}"
     echo
+    echo     "PATH for Storage node binary $STORBIN "
+    echo     "BASEPATH for storage node setup $BASEDIR "
+    echo     "Logs for storage node app $LOGFILE "
     echo; exit
   }; end_report
 
