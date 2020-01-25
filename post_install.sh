@@ -48,12 +48,12 @@ echo `date` "Running storagenode binary for setup" >> $LOGFILE
 $STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
 chmod a+rwx $CFGDIR
 chmod a+w $YMLFILE
-chown -R ${user} $BASEDIR
+chown -R ${user}:${USER} $BASEDIR
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
-# Temporary Hack (corrected after final directory of loading is validated)
+# Temporary fix
 cp -p $CNFFILE /usr/local/www/storagenode
 chown -R ${user} /usr/local/www/storagenode
 chmod a+rw $CNFFILE
