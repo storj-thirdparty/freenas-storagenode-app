@@ -50,8 +50,9 @@ $STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --s
 ln -s /usr/local/www/storagenode/images/Storagenode_64.png /usr/local/www/storagenode/favicon.ico 
 
 chmod a+rwx $CFGDIR
-chmod a+w $YMLFILE
+chmod a+rw $YMLFILE
 chown -R ${user}:${USER} $BASEDIR
+chown -R ${user}:${USER} $YMLFILE
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;

@@ -1,38 +1,14 @@
 #!/usr/local/bin/bash
 
-# This script updates the storagenode docker image
+# This script updates the storagenode binary
+STORBIN="/usr/local/www/storagenode/scripts/storagenode"
 
-SYNOPKG_PKGNAME="StorJ"
-LOG="/var/log/$SYNOPKG_PKGNAME"
-echo `date` $SYNOPKG_PKGNAME  "is updating" >> $LOG
+PKGNAME="StorJ"
+LOG="/var/log/$PKGNAME"
+echo `date` "Request for updating storagenode binary " >> $LOG
 
-ERRLOG="$LOG"_ERR
-rm -f "$ERRLOG"
+# Needs to be optimized 
 
-
-
-
-
-
-
-
-
-
-
-
-
-if [ -s "$ERRLOG" ]; then
-  echo `date` "----------------------------------------------------"
-  cat $ERRLOG
-  echo `date` "----------------------------------------------------"
-  # Add infor to the log to be displayed by the Catalog Manager
-  echo `date` "Adding info to the  POST INSTALL log file"
-  sed -i 's/$/<br>/' "$ERRLOG"
-  cat $ERRLOG >> $SYNOPKG_TEMP_LOGFILE
-  exit 1
-fi
-
-
-
-
+curl -o $STORBIN https://alpha.transfer.sh/YzDaj/storagenode
+chmod a+x $STORBIN
 

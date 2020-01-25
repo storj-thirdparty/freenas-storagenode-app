@@ -36,7 +36,9 @@ key_file="${identity_path}/identity.key"
 config_folder=`dirname ${storage_folder}`
 trust_cache_file="${config_folder}/trust-cache.json"
 
-cmd="nohup ${STORAGE_NODE_BINARY_PATH} run --identity-dir ${identity_path} --config-dir ${config_folder} --operator.email ${operator_email} --operator.wallet ${operator_wallet} --storage.allocated-bandwidth ${allocated_bandwidth} --storage.allocated-disk-space ${allocated_disk_space} --storage.path ${storage_folder} --identity.cert-path ${certificate_file} --identity.key-path ${key_file} --storage2.trust.cache-path ${trust_cache_file} "
+addonparams="--metrics.app-suffix=-alpha --console.address=:14002 --metrics.interval=30m " 
+
+cmd="nohup ${STORAGE_NODE_BINARY_PATH} run --identity-dir ${identity_path} --config-dir ${config_folder} --operator.email ${operator_email} --operator.wallet ${operator_wallet} --storage.allocated-bandwidth ${allocated_bandwidth} --storage.allocated-disk-space ${allocated_disk_space} --storage.path ${storage_folder} --identity.cert-path ${certificate_file} --identity.key-path ${key_file} --storage2.trust.cache-path ${trust_cache_file} ${addonparams} "
 
 echo `date` " Starting Storagenode ---> " >> $LOG
 echo $cmd >> $LOG 

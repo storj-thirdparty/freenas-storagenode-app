@@ -2,13 +2,13 @@
 
 process="/usr/local/www/storagenode/scripts/storagenode"
 user=www
-ps=` ps -adf | grep $process | grep -v grep `
-cmd=" ps -adf | grep $process | grep -v grep | wc -l"
+cmd=" ps -adf -U $user | grep $process | grep -v grep | wc -l"
 numLines=`eval $cmd`
 
+process=$(basename $process)
 if [[ $numLines -ge 1 ]]
 then
-	echo "Service $process is running (lines:$numLines) and processes: $ps "
+	echo "Service $process is running "
 else
 	echo "Service $process is not running "
 fi
