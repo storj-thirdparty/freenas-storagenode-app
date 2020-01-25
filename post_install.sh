@@ -46,6 +46,9 @@ curl -o $STORBIN https://alpha.transfer.sh/YzDaj/storagenode
 chmod a+x $STORBIN
 echo `date` "Running storagenode binary for setup" >> $LOGFILE
 $STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
+
+ln -s /usr/local/www/storagenode/images/Storagenode_64.png /usr/local/www/storagenode/favicon.ico 
+
 chmod a+rwx $CFGDIR
 chmod a+w $YMLFILE
 chown -R ${user}:${USER} $BASEDIR

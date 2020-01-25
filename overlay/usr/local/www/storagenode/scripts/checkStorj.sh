@@ -1,21 +1,14 @@
 #!/usr/local/bin/bash
 
-#numLines=`docker ps  --filter name="^docker_db_1$" | wc -l `
-
-container=storagenode
-cmd="docker ps -a --filter name=\"^/${container}$\" | wc -l"
-#echo "Running #$cmd#"
+process="/usr/local/www/storagenode/scripts/storagenode"
+user=www
+ps=` ps -adf | grep $process | grep -v grep `
+cmd=" ps -adf | grep $process | grep -v grep | wc -l"
 numLines=`eval $cmd`
 
-
-
-if [[ $numLines -gt 1 ]]
+if [[ $numLines -ge 1 ]]
 then
-	statuscmd="docker ps -a --filter name=\"^/${container}$\"  | cut -c86-109 "
-	status=`eval $statuscmd `
-
-	echo "Container named $container launched <br> "
-	echo "$status "
+	echo "Service $process is running (lines:$numLines) and processes: $ps "
 else
-	echo "Container named $container not launched  "
+	echo "Service $process is not running "
 fi
