@@ -51,8 +51,8 @@ ln -s /usr/local/www/storagenode/images/Storagenode_64.png /usr/local/www/storag
 
 chmod a+rwx $CFGDIR
 chmod a+rw $YMLFILE
-chown -R ${user}:${USER} $BASEDIR
-chown -R ${user}:${USER} $YMLFILE
+chown -R ${user}:${user} $BASEDIR
+chown -R ${user}:${user} $YMLFILE
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
