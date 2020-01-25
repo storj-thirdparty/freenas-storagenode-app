@@ -12,11 +12,6 @@
 		$moduleBase	= $platformBase . 'storagenode/';
 		$checkRunning	= $moduleBase . 'scripts/checkStorj.sh' ;
 
-              #$ip = "http://173.225.183.160";
-              #$_finalUrl = $ip.":14002/";
-
-	      #$output = "Sample output for display in case of normal run !" ;
-	      #$output = ""; # Blank output for failure case
               $output = shell_exec("/usr/local/bin/bash $checkRunning");
               $err = shell_exec("/usr/local/bin/bash $checkRunning 2>&1 ");
 	      if (!trim($output) == "") { 
@@ -24,7 +19,9 @@
 		      echo " $output <br> " ;
 			#$port = "" ;
 			$port = ":14002" ;
-			$url =  "http://{$_SERVER['HTTP_HOST']}${port}";
+			$httphost = $_SERVER['HTTP_HOST'];
+			$httphost = preg_replace('/(\:[0-9]+)/', '', $httphost) ;
+			$url =  "http://${httphost}${port}";
 			$escaped_url = htmlspecialchars( $url, ENT_QUOTES, 'UTF-8' );
 			$_finalUrl = $escaped_url ;
 	?>

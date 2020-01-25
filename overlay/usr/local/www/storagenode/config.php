@@ -83,7 +83,7 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     fputcsv($filepath, $header);
     fputcsv($filepath, array($_identity_directory,$_address,$_wallet,$_storage,$_bandwidth,$_emailId,$_directory));
     fclose($filepath);
-    $cmd = "/usr/local/bin/bash $startScript $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $storageBinary" ;
+    $cmd = "/usr/local/bin/bash $startScript $_address $_wallet $_emailId ${_bandwidth}TB ${_storage}GB $_identity_directory $_directory $storageBinary " ;
     logMessage("======================= Running finally start storage command =============\n" .
 	$cmd .
 	"\n====================================================\n" );
