@@ -9,6 +9,7 @@
        "allow_raw_sockets": 1,
        "nat": 1,
        "nat_forwards": "tcp(8443:8443)"
+  },
   "pkgs": [
     "shells/bash",
     "devel/git",
