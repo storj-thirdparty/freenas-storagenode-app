@@ -1,45 +1,56 @@
 <?php
 
-$filename = "output.csv";
+# ------------------------------------------------------------------------
+#  Set environment variables
+# ------------------------------------------------------------------------
+$cfgfilename = "config.json";
 
-$platformBase	= $_SERVER['DOCUMENT_ROOT'];
-$moduleBase	= $platformBase . dirname($_SERVER['PHP_SELF']) ;
-$scriptsBase	= $moduleBase . 'scripts/' ;
+$platformBase   = $_SERVER['DOCUMENT_ROOT'];
+$moduleBase     = $platformBase . dirname($_SERVER['PHP_SELF']) ;
+$scriptsBase    = $moduleBase . '/scripts' ;
 
-logMessage("Platform Base($platformBase), ModuleBase($moduleBase) scriptBase($scriptsBase)\n");
 
-$file		= $moduleBase . $filename  ;
-$startScript	= $scriptsBase . 'storagenodestart.sh' ;
-$stopScript	= $scriptsBase . 'storagenodestop.sh' ;
-$checkScript	= $scriptsBase . 'checkStorj.sh' ;
-$storageBinary	= $scriptsBase . 'storagenode' ;
+$cfgfile        = $moduleBase  . DIRECTORY_SEPARATOR . $cfgfilename  ;
+$startScript    = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodestart.sh' ;
+$stopScript     = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodestop.sh' ;
+$updateScript	= $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodeupdate.sh' ;
+$checkScript    = $scriptsBase . DIRECTORY_SEPARATOR . 'checkStorj.sh' ;
+$storageBinary  = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenode' ;
+$yamlPath	= $scriptsBase . DIRECTORY_SEPARATOR . 'docker-compose_base.yml' ;
+logMessage("------------------------------------------------------------------------------");
+# ------------------------------------------------------------------------
+
+
+logMessage("Platform Base($platformBase), ModuleBase($moduleBase) scriptBase($scriptsBase)");
+
+$_address 	= $_POST["address"];			# Port #
+$_wallet  	= $_POST["wallet"];			# Wallet
+$_storage	= $_POST["storage"];			# Storage size (in GB)
+$_bandwidth	= $_POST["bandwidth"];			# Bandwidth size (in TB)
+$_emailId     	= $_POST["email_val"];			# email ID
+$_directory     = $_POST["directory"];			# Config Directory
+$_config	= $_POST['directory'];			# config Dir
+$_identity_directory= $_POST['identityDirectory'];	# identity Dir
+$_id_dir	= $_POST['identityDirectory'];		# identity Dir
+   
+$properties = array(
+	    'Identity'	=> "$_identity_directory",
+	    'Port'	=> $_address,
+	    'Wallet'	=> $_wallet,
+	    'Allocation'=> $_storage,
+	    'Bandwidth'	=> $_bandwidth,
+	    'Email'	=> $_emailId,
+	    'Directory' => "$_directory",
+	    );
 
 if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
+    logMessage("config called up with isajax 1 ");
+    logEnvironment() ;
 
-    logMessage(
-		"\nPOST:\n" . print_r($_POST, true) . 
-		"\nSERVER:\n" . print_r($_SERVER, true));
-
-    $_address 		= $_POST["address"];			# Port #
-    $_wallet  		= $_POST["wallet"];			# Wallet
-    $_storage		= $_POST["storage"];			# Storage size (in GB)
-    $_bandwidth		= $_POST["bandwidth"];			# Bandwidth size (in TB)
-    $_emailId     	= $_POST["email_val"];			# email ID
-    $_directory     	= $_POST["directory"];			# Config Directory
-    $_config		= $_POST['directory'];			# config Dir
-    $_identity_directory= $_POST['identityDirectory'];		# identity Dir
-    $_id_dir		= $_POST['identityDirectory'];		# identity Dir
-   
     $yamlPath = $_config . "config.yaml" ;
     logMessage( "Going to update config file @ path $yamlPath \n");
     $str=file_get_contents($yamlPath);
-#    logMessage( "---------------------------------------------------\n" .
-#	"Read $yamlPath @ " . `date` . "found contents:\n" .
-#	$str .  
-#	"\n------------------------------------------------------\n");
-
     # ---------------------------------------------------
-    # LOGIC TBD 
     # 1) Read old YAML file
     # 2) Update YAML file
     # 3) Check changes 
@@ -57,8 +68,8 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     $str=preg_replace('(^identity.key-path:.*)m', "identity.key-path: ${_id_dir}identity.key", $str);
 
     # Still to be handled
-    $str=preg_replace('(^server.revocation-dburl:.*)m', "server.revocation-dburl: bolt://${_config}revocations.db", $str); # TODO To be enhanced for other URL types check and handling
-    $str=preg_replace('(^storage2.trust.cache-path:.*)m', "storage2.trust.cache-path: ${_config}", $str); # TODO To be enhanced for other URL types check and handling
+    $str=preg_replace('(^server.revocation-dburl:.*)m', "server.revocation-dburl: bolt://${_config}revocations.db", $str); 
+    $str=preg_replace('(^storage2.trust.cache-path:.*)m', "storage2.trust.cache-path: ${_config}", $str); 
 
     # Cleanup
     $str=preg_replace('(^# Last UPDATE by configuration script @.*)m', "", $str);	# Clean earlier update strings
@@ -70,42 +81,58 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 	"Updated $yamlPath @ " . `date` . "with content:\n" .
 	$str .  
 	"\n------------------------------------------------------\n");
-// write to target file
+    // write to target file
     file_put_contents($yamlPath, $str);
 
-//Chnaging permissions of the shell script
+    //Changing permissions of the shell script
     shell_exec("chmod 777 $startScript 2>&1");
     shell_exec("chmod 777 $stopScript 2>&1");
+    shell_exec("chmod 666 $cfgfile 2>&1");
 
-    $filepath = fopen($file,"w");
-    chmod($filepath, 0777);
-    $header = array('Identity','Port','Wallet','Allocation','Bandwidth','Email','Directory');
-    fputcsv($filepath, $header);
-    fputcsv($filepath, array($_identity_directory,$_address,$_wallet,$_storage,$_bandwidth,$_emailId,$_directory));
-    fclose($filepath);
-    $cmd = "/usr/local/bin/bash $startScript $_address $_wallet $_emailId ${_bandwidth}TB ${_storage}GB $_identity_directory $_directory $storageBinary " ;
-    logMessage("======================= Running finally start storage command =============\n" .
-	$cmd .
-	"\n====================================================\n" );
-    shell_exec($cmd);
+    # Update config file for later references
+    file_put_contents($cfgfile, json_encode($properties));	# TODO: may not be required!! is called again
+
+    $cmd = "/usr/local/bin/bash $startScript $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $storageBinary 2>&1 " ;
+    logMessage($cmd);
+    $output = shell_exec($cmd);
+
+    /* Update File again with Log value as well */
+    $properties['last_log'] = $output ;
+    file_put_contents($cfgfile, json_encode($properties));
 
 
   }else if(isset($_POST['isstopAjax']) && ($_POST['isstopAjax'] == 1)){
-   shell_exec("bash $stopScript");
+    logMessage("config called up with isStopAjax 1 ");
+    $output = shell_exec("bash $stopScript 2>&1 ");
+
+    $properties['last_log'] = $output ;
+    file_put_contents($cfgfile, json_encode($properties));
+
+  }else if(isset($_POST['isUpdateAjax']) && ($_POST['isUpdateAjax'] == 1)){
+    logMessage("config called up with isUpdateAjax 1 ");
+    $server_address = $_SERVER['SERVER_ADDR'] ;
+    shell_exec("/bin/bash $updateScript $cfgfile $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $server_address ");
   } else if(isset($_POST['isstartajax']) && ($_POST['isstartajax'] == 1)) {
-    #$output = shell_exec("/etc/init.d/STORJ.sh is-running");
-    $output = "While enabling storagestart\n" . shell_exec("/usr/local/bin/bash $checkScript 2>&1 ");
+    $output = shell_exec("/usr/local/bin/bash $checkScript 2>&1 ");
     if (!trim($output) == "") {
-    echo $output;
+	echo $output;
     } else {
-      echo $output;
+	echo $output;
+    }
+  } else {
+  // DEFAULT : Load contents at start
+  logMessage("config called up with for loading ");
+	//
+  // checking if file exists.
+  if(file_exists($cfgfile)){
+	$content = file_get_contents($cfgfile);
+	$prop = json_decode($content, true);
+	logMessage("Loaded properties : " . print_r($prop, true));
+	$data = array_values($prop);
   }
-} else {
-$h = fopen($file, "r");
-$data = fgetcsv($h, 1000, ",");
-$data = fgetcsv($h, 1000, ",");
-// while (($data = fgetcsv($h, 1000, ",")) !== FALSE)
+
 {
+
 ?>
 <?php include 'header.php';?>
 <link href="./resources/css/config.css" type="text/css" rel="stylesheet">
@@ -372,7 +399,7 @@ $data = fgetcsv($h, 1000, ",");
                   </div>
                 </div>
                 <div class="bottom-buttons">
-                  <button type="button" disabled class="stop-button" id="stopbtn">Stop My Storage Node</button>
+                  <button type="button" disabled class="stop-button" id="stopbtn">Stop My Storage Node</button>&nbsp;&nbsp;
                   <button type="button" class="start-button" id="startbtn">Start My Storage Node</button>
                 </div>
               <!-- </div> -->
@@ -385,12 +412,25 @@ $data = fgetcsv($h, 1000, ",");
 <?php include 'footer.php';?>
 <!--<script src="./resources/js/jquery-3.1.1.min.js"></script>-->
 <script type="text/javascript" src="./resources/js/config.js"></script>
-<?php } 
+<?php
 
-function logMessage($message) {
-    $logFile = "/tmp/storj.log";
-    file_put_contents($logFile, $message, FILE_APPEND);
 }
 
+function logEnvironment() {
+	logMessage(
+		"\n----------------------------------------------\n"
+		. "ENV is : " . print_r($_ENV, true)
+		. "POST is : " . print_r($_POST, true)
+		. "SERVER is : " . print_r($_SERVER, true)
+		. "----------------------------------------------\n"
+	);
+}
+
+function logMessage($message) {
+    $file = "/var/log/StorJ" ;
+    $message = preg_replace('/\n$/', '', $message);
+    $date = `date` ; $timestamp = str_replace("\n", " ", $date);
+    file_put_contents($file, $timestamp . $message . "\n", FILE_APPEND);
+}
 
 ?>
