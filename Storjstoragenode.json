@@ -1,6 +1,5 @@
 {
   "name": "Storjstoragenode",
-  "plugin_schema": "2",
   "release": "11.3-RELEASE",
   "artifact": "https://github.com/utropicmedia/storj-freenas",
   "properties": {
@@ -8,7 +7,7 @@
        "mount_linprocfs": 1,
        "allow_raw_sockets": 1,
        "nat": 1,
-       "nat_forwards": "tcp(8443:8443)"
+       "nat_forwards": "tcp(80:8443)"
   },
   "pkgs": [
     "shells/bash",
