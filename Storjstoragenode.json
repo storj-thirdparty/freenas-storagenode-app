@@ -21,7 +21,8 @@
     "www/php72-session",
     "archivers/php72-zip"
   ],
-  "packagesite": "http://pkg.FreeBSD.org/${ABI}/quarterly",
+  "_packagesite": "http://pkg.FreeBSD.org/${ABI}/quarterly",
+  "packagesite": "http://pkg.FreeBSD.org/FreeBSD:11:amd64/quarterly",
   "fingerprints": {
           "plugin-default": [
                   {
