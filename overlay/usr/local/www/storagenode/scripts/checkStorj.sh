@@ -1,6 +1,7 @@
 #!/usr/local/bin/bash
 
-process="/usr/local/www/storagenode/scripts/storagenode"
+#process="/usr/local/www/storagenode/scripts/storagenode"
+process="storagenode"
 user=www
 cmd=" ps -adf -U $user | grep $process | grep -v grep | wc -l"
 numLines=`eval $cmd`

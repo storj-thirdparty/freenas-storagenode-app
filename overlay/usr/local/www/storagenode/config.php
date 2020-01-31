@@ -102,6 +102,10 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 
 
   }else if(isset($_POST['isstopAjax']) && ($_POST['isstopAjax'] == 1)){
+	  if(file_exists($cfgfile)){
+		$content = file_get_contents($cfgfile);
+		$properties = json_decode($content, true);
+	  }
     logMessage("config called up with isStopAjax 1 ");
     $output = shell_exec("bash $stopScript 2>&1 ");
 
@@ -109,9 +113,17 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     file_put_contents($cfgfile, json_encode($properties));
 
   }else if(isset($_POST['isUpdateAjax']) && ($_POST['isUpdateAjax'] == 1)){
+	  if(file_exists($cfgfile)){
+		$content = file_get_contents($cfgfile);
+		$properties = json_decode($content, true);
+	  }
     logMessage("config called up with isUpdateAjax 1 ");
     $server_address = $_SERVER['SERVER_ADDR'] ;
-    shell_exec("/bin/bash $updateScript $cfgfile $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $server_address ");
+    $output = shell_exec("/bin/bash $updateScript $cfgfile $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $server_address 2>&1 ");
+
+    $properties['last_log'] = $output ;
+    file_put_contents($cfgfile, json_encode($properties));
+
   } else if(isset($_POST['isstartajax']) && ($_POST['isstartajax'] == 1)) {
     $output = shell_exec("/usr/local/bin/bash $checkScript 2>&1 ");
     if (!trim($output) == "") {
