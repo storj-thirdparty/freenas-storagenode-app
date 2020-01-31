@@ -8,6 +8,7 @@
        "allow_raw_sockets": 1,
        "nat": 1,
        "nat_forwards": "tcp(80:8443)"
+       "nat_forwards": "tcp(14002:14002)"
   },
   "pkgs": [
     "shells/bash",
