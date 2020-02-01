@@ -172,7 +172,11 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 	$content = file_get_contents($logfile);
 	$logs = json_decode($content, true);
     }
-    $output = $logs['last_log'];
+    if(isset($logs['last_log'])) {
+	$output = $logs['last_log'];
+    } else {
+	$output = "" ;
+    }
     if (!trim($output) == "") {
 	echo $output;
     } else {
@@ -200,7 +204,11 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 	$content = file_get_contents($logfile);
 	$logs = json_decode($content, true);
     }
-    $output = $logs['last_log'];
+    if( isset($logs['last_log'])) {
+	$output = $logs['last_log'];
+    } else {
+	$output = "";
+    }
     /* Update File again with Log value as well */
     $logs['last_point'] .= "===> $requestMethod -> POINT #7" ;
     file_put_contents($logfile, json_encode($logs));
