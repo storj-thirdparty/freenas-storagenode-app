@@ -8,16 +8,15 @@
       <div class="col-10">
         <div class="container-fluid dashboard-view">
 	<?php
-		$platformBase	= '/usr/local/www/' ;
-		$moduleBase	= $platformBase . 'storagenode/';
-		$checkRunning	= $moduleBase . 'scripts/checkStorj.sh' ;
+		$platformBase   = $_SERVER['DOCUMENT_ROOT'];
+		$moduleBase     = $platformBase . dirname($_SERVER['PHP_SELF']) ;
+		$scriptsBase    = $moduleBase . '/scripts' ;
+		$checkRunning	= $scriptsBase . '/checkStorj.sh' ;
 
-              $output = shell_exec("/usr/local/bin/bash $checkRunning");
-              $err = shell_exec("/usr/local/bin/bash $checkRunning 2>&1 ");
-	      if (!trim($output) == "") { 
+              $output = shell_exec("/usr/local/bin/bash $checkRunning "); $err = $output ; 
+	      if (strpos($output, "Service storagenode is running") !== false) { 
 		      echo "<H2> Storj Status </H2> " ;
 		      echo " $output <br> " ;
-			#$port = "" ;
 			$port = ":14002" ;
 			$httphost = $_SERVER['HTTP_HOST'];
 			$httphost = preg_replace('/(\:[0-9]+)/', '', $httphost) ;
@@ -29,7 +28,7 @@
        <?php 
 	      }  else {
 	?>
-		<frame width="40%" height="20%">  <H2> STORJ Status is: </H2> <?php echo $err ;?> </frame>
+		<frame width="40%" height="20%">  <H2> STORJ Status : Error </H2> <?php echo $err ;?> </frame>
 	<?php
 	      }
 	?>

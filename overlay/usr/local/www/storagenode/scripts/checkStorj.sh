@@ -1,15 +1,16 @@
 #!/usr/local/bin/bash
 
-#process="/usr/local/www/storagenode/scripts/storagenode"
-process="storagenode"
+service=storagenode
+process='/usr[/]*local[/]*www[/]*scripts[/]*storagenode'
 user=www
-cmd=" ps -adf -U $user | grep $process | grep -v grep | wc -l"
+cmd=" ps -adf -U $user | grep -E -e \"$process\" | grep -v grep | wc -l"
+#echo "Running $cmd " 
 numLines=`eval $cmd`
 
 process=$(basename $process)
 if [[ $numLines -ge 1 ]]
 then
-	echo "Service $process is running "
+	echo "Service $service is running "
 else
-	echo "Service $process is not running "
+	echo "Service $service is not running "
 fi
