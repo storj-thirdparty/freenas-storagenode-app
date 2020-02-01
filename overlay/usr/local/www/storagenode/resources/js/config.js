@@ -172,11 +172,11 @@ jQuery(function() {
   } else {
     jQuery("#startbtn").attr("disabled", true);
     jQuery("#startbtn").removeClass("start-button");
-    jQuery("#stopbtn").removeClass("stop-button");
-    jQuery("#stopbtn").attr("disabled", true);
+    //jQuery("#stopbtn").removeClass("stop-button");
+    //jQuery("#stopbtn").attr("disabled", true);
     // make button cursor not-allowed
     jQuery("#startbtn").css("cursor", "not-allowed");
-    jQuery("#stopbtn").css("cursor", "not-allowed");
+    //jQuery("#stopbtn").css("cursor", "not-allowed");
     // jQuery("#startbtn").css('margin', 10 + 'px');
   }
 
@@ -381,10 +381,10 @@ jQuery("#startbtn").click(function(e) {
         // // log message
          $('iframe').contents().find('body').html('<p>'+result+'</p>');
 
-        jQuery("#stopbtn").removeAttr("disabled", true);
-        jQuery("#stopbtn").addClass("stop-button");
+        //jQuery("#stopbtn").removeAttr("disabled", true);
+        //jQuery("#stopbtn").addClass("stop-button");
         // make button cursor pointer
-        jQuery("#stopbtn").css("cursor", "pointer");
+        //jQuery("#stopbtn").css("cursor", "pointer");
       },
       error: function () {
         // log message

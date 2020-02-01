@@ -411,11 +411,15 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
                   </div>
                 </div>
                 <div class="bottom-buttons">
+                  <button type="button" class="start-button" id="updatebtn">Update My Storage Node</button>
+                  <div style="position: absolute;display: inline-block;left: 40%;">
                   <button type="button" disabled class="stop-button" id="stopbtn">Stop My Storage Node</button>&nbsp;&nbsp;
                   <button type="button" class="start-button" id="startbtn">Start My Storage Node</button>
                 </div>
-              <!-- </div> -->
-              <button type="button" class="start-button" id="updatebtn">Update My Storage Node</button>
+              <!-- log message -->
+              <iframe>
+                <p  id="msg"></p>
+              </iframe> 
             </div>
           </div>
           <?php }
