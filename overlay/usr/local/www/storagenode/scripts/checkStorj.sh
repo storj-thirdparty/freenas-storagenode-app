@@ -1,7 +1,7 @@
 #!/usr/local/bin/bash
 
 service=storagenode
-process='/usr[/]*local[/]*www[/]*scripts[/]*storagenode'
+process='/usr[/]*local[/]*www[/]*storagenode[/]*scripts[/]*storagenode'
 user=www
 cmd=" ps -adf -U $user | grep -E -e \"$process\" | grep -v grep | wc -l"
 #echo "Running $cmd " 
