@@ -4,6 +4,7 @@
 #  Set environment variables
 # ------------------------------------------------------------------------
 $cfgfilename = "config.json";
+$logfilename = "log.json";
 
 $platformBase   = $_SERVER['DOCUMENT_ROOT'];
 $moduleBase     = $platformBase . dirname($_SERVER['PHP_SELF']) ;
@@ -11,6 +12,7 @@ $scriptsBase    = $moduleBase . '/scripts' ;
 
 
 $cfgfile        = $moduleBase  . DIRECTORY_SEPARATOR . $cfgfilename  ;
+$logfile        = $moduleBase  . DIRECTORY_SEPARATOR . $logfilename  ;
 $startScript    = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodestart.sh' ;
 $stopScript     = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodestop.sh' ;
 $updateScript	= $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodeupdate.sh' ;
@@ -18,34 +20,28 @@ $checkScript    = $scriptsBase . DIRECTORY_SEPARATOR . 'checkStorj.sh' ;
 $storageBinary  = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenode' ;
 $yamlPath	= $scriptsBase . DIRECTORY_SEPARATOR . 'docker-compose_base.yml' ;
 logMessage("------------------------------------------------------------------------------");
+logMessage("Platform Base($platformBase), ModuleBase($moduleBase) scriptBase($scriptsBase)");
 # ------------------------------------------------------------------------
 
+$requestMethod = $_SERVER['REQUEST_METHOD'] ;
+$logs = array() ;
 
-logMessage("Platform Base($platformBase), ModuleBase($moduleBase) scriptBase($scriptsBase)");
 
-$_address 	= $_POST["address"];			# Port #
-$_wallet  	= $_POST["wallet"];			# Wallet
-$_storage	= $_POST["storage"];			# Storage size (in GB)
-$_bandwidth	= $_POST["bandwidth"];			# Bandwidth size (in TB)
-$_emailId     	= $_POST["email_val"];			# email ID
-$_directory     = $_POST["directory"];			# Config Directory
-$_config	= $_POST['directory'];			# config Dir
-$_identity_directory= $_POST['identityDirectory'];	# identity Dir
-$_id_dir	= $_POST['identityDirectory'];		# identity Dir
-   
-$properties = array(
-	    'Identity'	=> "$_identity_directory",
-	    'Port'	=> $_address,
-	    'Wallet'	=> $_wallet,
-	    'Allocation'=> $_storage,
-	    'Bandwidth'	=> $_bandwidth,
-	    'Email'	=> $_emailId,
-	    'Directory' => "$_directory",
-	    );
 
 if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     logMessage("config called up with isajax 1 ");
     logEnvironment() ;
+
+
+    $_address  = $_POST["address"];
+    $_wallet   = $_POST["wallet"];
+    $_storage  = $_POST["storage"];
+    $_bandwidth      = $_POST["bandwidth"];
+    $_emailId      = $_POST["email_val"];
+    $_directory    = $_POST["directory"];
+    $_config	= $_POST['directory'];			# config Dir
+    $_identity_directory = $_POST['identityDirectory'];
+    $_id_dir	= $_POST['identityDirectory'];		# identity Dir
 
     $yamlPath = $_config . "config.yaml" ;
     logMessage( "Going to update config file @ path $yamlPath \n");
@@ -90,58 +86,125 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     shell_exec("chmod 666 $cfgfile 2>&1");
 
     # Update config file for later references
-    file_put_contents($cfgfile, json_encode($properties));	# TODO: may not be required!! is called again
+    // file_put_contents($cfgfile, json_encode($properties));	# TODO: may not be required!! is called again
 
-    $cmd = "/usr/local/bin/bash $startScript $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $storageBinary 2>&1 " ;
+    // set_time_limit(300);
+    $properties = array(
+	    'Identity'	=> "$_identity_directory",
+	    'Port'	=> $_address,
+	    'Wallet'	=> $_wallet,
+	    'Allocation'=> $_storage,
+	    'Bandwidth'	=> $_bandwidth,
+	    'Email'	=> $_emailId,
+	    'Directory' => "$_directory"
+	    );
+    $logs['last_point'] .= "===> $requestMethod -> POINT#1" ;
+    file_put_contents($cfgfile, json_encode($properties));
+    file_put_contents($logfile, json_encode($logs));
+
+    $cmd = "/usr/local/bin/bash $startScript $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $storageBinary " ;
     logMessage($cmd);
-    $output = shell_exec($cmd);
+    $output = shell_exec(" $cmd 2>&1 " );
 
     /* Update File again with Log value as well */
-    $properties['last_log'] = $output ;
-    file_put_contents($cfgfile, json_encode($properties));
-
+    if( isset($output)) {
+	$logs['last_log'] = $output ;
+    } else {
+	$logs['last_point'] .= " -> POINT #2" ;
+    }
+    file_put_contents($logfile, json_encode($logs));
 
   }else if(isset($_POST['isstopAjax']) && ($_POST['isstopAjax'] == 1)){
-	  if(file_exists($cfgfile)){
-		$content = file_get_contents($cfgfile);
-		$properties = json_decode($content, true);
-	  }
+    if(file_exists($cfgfile)){
+	$content = file_get_contents($cfgfile);
+	$properties = json_decode($content, true);
+    }
     logMessage("config called up with isStopAjax 1 ");
     $output = shell_exec("bash $stopScript 2>&1 ");
 
-    $properties['last_log'] = $output ;
-    file_put_contents($cfgfile, json_encode($properties));
+    /* Update File again with Log value as well */
+    if( isset($output)) {
+	$logs['last_log'] = $output ;
+    } else {
+	$logs['last_point'] .= "===> $requestMethod -> POINT #3" ;
+    }
+    file_put_contents($logfile, json_encode($logs));
 
   }else if(isset($_POST['isUpdateAjax']) && ($_POST['isUpdateAjax'] == 1)){
-	  if(file_exists($cfgfile)){
-		$content = file_get_contents($cfgfile);
-		$properties = json_decode($content, true);
-	  }
+    if(file_exists($cfgfile)){
+	$content = file_get_contents($cfgfile);
+	$properties = json_decode($content, true);
+    }
     logMessage("config called up with isUpdateAjax 1 ");
     $server_address = $_SERVER['SERVER_ADDR'] ;
-    $output = shell_exec("/bin/bash $updateScript $cfgfile $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $server_address 2>&1 ");
 
-    $properties['last_log'] = $output ;
+    $properties = array(
+	    'Identity'	=> "$_identity_directory",
+	    'Port'	=> $_address,
+	    'Wallet'	=> $_wallet,
+	    'Allocation'=> $_storage,
+	    'Bandwidth'	=> $_bandwidth,
+	    'Email'	=> $_emailId,
+	    'Directory' => "$_directory"
+	    );
     file_put_contents($cfgfile, json_encode($properties));
+    $logs['last_point'] .= "===> $requestMethod -> POINT#4" ;
+    file_put_contents($logfile, json_encode($logs));
+
+    $output = shell_exec("bash $updateScript $cfgfile $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $server_address 2>&1 ");
+
+    /* Update File again with Log value as well */
+    if( isset($output)) {
+	$logs['last_log'] = $output ;
+    } else {
+	$logs['last_point'] .= "===> $requestMethod -> POINT #5" ;
+    }
+    file_put_contents($logfile, json_encode($logs));
 
   } else if(isset($_POST['isstartajax']) && ($_POST['isstartajax'] == 1)) {
-    $output = shell_exec("/usr/local/bin/bash $checkScript 2>&1 ");
+    if(file_exists($cfgfile)){
+	$content = file_get_contents($cfgfile);
+	$properties = json_decode($content, true);
+    }
+    logMessage("config called up with isstartajax 1 ");
+    logMessage("Loaded properties : " . print_r($properties, true));
+    if(file_exists($logfile)){
+	$content = file_get_contents($logfile);
+	$logs = json_decode($content, true);
+    }
+    $output = $logs['last_log'];
     if (!trim($output) == "") {
 	echo $output;
     } else {
 	echo $output;
     }
+
+    /* Update File again with Log value as well */
+    $logs['last_point'] .= "===> $requestMethod -> POINT #6" ;
+    file_put_contents($logfile, json_encode($logs));
+
   } else {
   // DEFAULT : Load contents at start
-  logMessage("config called up with for loading ");
+  logMessage("config called up for default loading ");
 	//
   // checking if file exists.
   if(file_exists($cfgfile)){
 	$content = file_get_contents($cfgfile);
 	$prop = json_decode($content, true);
 	logMessage("Loaded properties : " . print_r($prop, true));
-	$data = array_values($prop);
+	if(isset($prop) && (count($prop) > 0)) {
+		$data = array_values($prop);
+	}
   }
+    if(file_exists($logfile)){
+	$content = file_get_contents($logfile);
+	$logs = json_decode($content, true);
+    }
+    $output = $logs['last_log'];
+    /* Update File again with Log value as well */
+    $logs['last_point'] .= "===> $requestMethod -> POINT #7" ;
+    file_put_contents($logfile, json_encode($logs));
+
 
 {
 
@@ -155,12 +218,8 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     <div class="row">
       <?php include 'menu.php'; ?>
           <?php
-          $output = shell_exec("/etc/init.d/STORJ.sh is-authorized 2>&1");
-          $output = FALSE;
           if ( $output ){
-            header("Location: dashboard.php");
           } else {
-            //header("Location: authorize.php");
           ?>
           <div class="col-10 config-page">
             <div class="container-fluid">
