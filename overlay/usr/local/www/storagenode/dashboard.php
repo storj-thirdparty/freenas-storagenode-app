@@ -28,7 +28,7 @@
        <?php 
 	      }  else {
 	?>
-		<frame width="40%" height="20%">  <H2> STORJ Status : Error </H2> <?php echo $err ;?> </frame>
+		<frame width="40%" height="20%">  <H2> STORJ Status </H2> <?php echo $err ;?> </frame>
 	<?php
 	      }
 	?>
