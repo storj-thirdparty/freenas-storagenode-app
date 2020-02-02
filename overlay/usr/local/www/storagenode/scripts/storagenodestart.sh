@@ -43,5 +43,10 @@ cmd="nohup ${STORAGE_NODE_BINARY_PATH} run --identity-dir ${identity_path} --con
 echo `date` " Starting Storagenode ---> " >> $LOG
 echo $cmd >> $LOG 
 
-${cmd} >> $LOG 2>&1  &
+rm -f /tmp/nohup.out
+output=` ${cmd} > /tmp/nohup.out 2>&1  & `
+echo $output
+sleep 3 ; 
+cat /tmp/nohup.out
+cat /tmp/nohup.out >> $LOG
 

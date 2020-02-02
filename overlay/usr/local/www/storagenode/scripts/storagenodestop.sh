@@ -15,9 +15,13 @@ STORAGE_NODE_BINARY=storagenode
 for user in $USERS
 do
 	cmd="killall -u $user ${STORAGE_NODE_BINARY} "
+	echo "Stopping $STORAGE_NODE_BINARY "
 	echo `date` $cmd >> $LOG  2>&1 
-	${cmd} >> $LOG 2>&1 &
+	output=`${cmd} 2>&1 `
+	echo ${output}
+	echo ${output} >> $LOG 2>&1 
 done
 
 echo `date` "storagenode stopped request run " >> $LOG
+echo "storagenode stopped request run " 
 

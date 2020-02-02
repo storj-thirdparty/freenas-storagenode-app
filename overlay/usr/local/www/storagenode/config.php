@@ -98,7 +98,6 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 	    'Email'	=> $_emailId,
 	    'Directory' => "$_directory"
 	    );
-    $logs['last_point'] .= "===> $requestMethod -> POINT#1" ;
     file_put_contents($cfgfile, json_encode($properties));
     file_put_contents($logfile, json_encode($logs));
 
@@ -108,9 +107,10 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 
     /* Update File again with Log value as well */
     if( isset($output)) {
-	$logs['last_log'] = $output ;
+	$logs['last_log'] = $logs['last_log'] . "\n" . `date` . $output . "\n";
     } else {
-	$logs['last_point'] .= " -> POINT #2" ;
+	$logs['last_log'] = $logs['last_log'] . "\n" . `date` . "No response from start script" . "\n" ;
+	$logs['last_point'] = " -> POINT #1" ;
     }
     file_put_contents($logfile, json_encode($logs));
 
@@ -124,9 +124,10 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 
     /* Update File again with Log value as well */
     if( isset($output)) {
-	$logs['last_log'] = $output ;
+	$logs['last_log'] = $logs['last_log'] . "\n" . `date` . $output . "\n" ;
     } else {
-	$logs['last_point'] .= "===> $requestMethod -> POINT #3" ;
+	$logs['last_log'] = $logs['last_log'] . "\n" . `date` . "No response from stop script". "\n" ;
+	$logs['last_point'] .= "===> $requestMethod -> POINT #2" ;
     }
     file_put_contents($logfile, json_encode($logs));
 
@@ -148,16 +149,17 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 	    'Directory' => "$_directory"
 	    );
     file_put_contents($cfgfile, json_encode($properties));
-    $logs['last_point'] .= "===> $requestMethod -> POINT#4" ;
+    $logs['last_point'] .= "===> $requestMethod -> POINT#3" ;
     file_put_contents($logfile, json_encode($logs));
 
     $output = shell_exec("bash $updateScript $cfgfile $_address $_wallet $_emailId $_bandwidth $_storage $_identity_directory $_directory $server_address 2>&1 ");
 
     /* Update File again with Log value as well */
     if( isset($output)) {
-	$logs['last_log'] = $output ;
+	$logs['last_log'] .= "\n" . `date` . $output . "\n" ;
     } else {
-	$logs['last_point'] .= "===> $requestMethod -> POINT #5" ;
+	$logs['last_log'] .= "\n" . `date` . "No response from update script ". "\n" ;
+	$logs['last_point'] .= "===> $requestMethod -> POINT #4" ;
     }
     file_put_contents($logfile, json_encode($logs));
 
@@ -168,29 +170,10 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     }
     logMessage("config called up with isstartajax 1 ");
     logMessage("Loaded properties : " . print_r($properties, true));
-    if(file_exists($logfile)){
-	$content = file_get_contents($logfile);
-	$logs = json_decode($content, true);
-    }
-    if(isset($logs['last_log'])) {
-	$output = $logs['last_log'];
-    } else {
-	$output = "" ;
-    }
-    if (!trim($output) == "") {
-	echo $output;
-    } else {
-	echo $output;
-    }
-
-    /* Update File again with Log value as well */
-    $logs['last_point'] .= "===> $requestMethod -> POINT #6" ;
-    file_put_contents($logfile, json_encode($logs));
-
+    
   } else {
   // DEFAULT : Load contents at start
   logMessage("config called up for default loading ");
-	//
   // checking if file exists.
   if(file_exists($cfgfile)){
 	$content = file_get_contents($cfgfile);
@@ -200,24 +183,16 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
 		$data = array_values($prop);
 	}
   }
-    if(file_exists($logfile)){
-	$content = file_get_contents($logfile);
-	$logs = json_decode($content, true);
-    }
-    if( isset($logs['last_log'])) {
-	$output = $logs['last_log'];
-    } else {
-	$output = "";
-    }
-    /* Update File again with Log value as well */
-    $logs['last_point'] .= "===> $requestMethod -> POINT #7" ;
-    file_put_contents($logfile, json_encode($logs));
-
-
 {
 
 ?>
 <?php include 'header.php';?>
+<style>
+code {
+	white-space: pre-wrap; /* preserve WS, wrap as necessary, preserve LB */
+	/* white-space: pre-line; /* collapse WS, preserve LB */
+}
+</style>
 <link href="./resources/css/config.css" type="text/css" rel="stylesheet">
   <div>
     <nav class="navbar">
@@ -226,7 +201,7 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     <div class="row">
       <?php include 'menu.php'; ?>
           <?php
-          if ( $output ){
+          if ( false /*$output*/ ){
           } else {
           ?>
           <div class="col-10 config-page">
@@ -484,9 +459,19 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
                   <button type="button" class="start-button" id="startbtn">Start My Storage Node</button>
                 </div>
               <!-- log message -->
-              <iframe>
-                <p  id="msg"></p>
-              </iframe> 
+			   <div class="row segment">
+			   <p><?php 
+				$content = "<B> LATEST LOG </B> <br> <code> " ;
+				    if(file_exists($logfile)){
+					$json_contents = file_get_contents($logfile);
+					$array_contents = json_decode($json_contents, true);  // convert json to associative array
+					$newlog =  isset($array_contents['last_log']) ? $array_contents['last_log'] : "";	// print last point if available
+					$newlog = preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#','', $newlog); // Remove terminal escape chars 
+					$content .= $newlog . "</code>"  ;
+				    }
+				echo $content ;
+				?></p>     
+			   </div>
             </div>
           </div>
           <?php }

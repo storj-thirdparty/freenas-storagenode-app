@@ -187,13 +187,14 @@ jQuery(function() {
     success: function (resposnse) {
       if(resposnse) {
         // log message
-        $('iframe').contents().find('body').html('<p>'+resposnse+'</p>');
+        //$('iframe').contents().find('body').html('<p>'+resposnse+'</p>');
+		//location.reload();
       }
     },
     error: function () {
       console.log("In There check runing or not");
       // log message
-      $('iframe').contents().find('body').html('<p>'+resposnse+'</p>');
+      //$('iframe').contents().find('body').html('<p>'+resposnse+'</p>');
     }
   });
 
@@ -379,16 +380,17 @@ jQuery("#startbtn").click(function(e) {
         // window.location.reload();
 
         // // log message
-         $('iframe').contents().find('body').html('<p>'+result+'</p>');
+         //$('iframe').contents().find('body').html('<p>'+result+'</p>');
 
         //jQuery("#stopbtn").removeAttr("disabled", true);
         //jQuery("#stopbtn").addClass("stop-button");
         // make button cursor pointer
         //jQuery("#stopbtn").css("cursor", "pointer");
+		window.location.reload();
       },
       error: function () {
         // log message
-         $('iframe').contents().find('body').html('<p>'+result+'</p>');
+         //$('iframe').contents().find('body').html('<p>'+result+'</p>');
         console.log("In there wrong");
       }
     });
