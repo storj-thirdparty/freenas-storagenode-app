@@ -42,7 +42,7 @@ if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-j
 fi
 
 # Fetch storagenode binary and execute for basic content creation
-curl -o $STORBIN https://alpha.transfer.sh/92yl9/storagenode
+curl -o $STORBIN https://alpha.transfer.sh/RGnLr/storagenode
 chmod a+x $STORBIN
 echo `date` "Running storagenode binary for setup" >> $LOGFILE
 $STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
