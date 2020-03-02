@@ -1,4 +1,4 @@
-# FreeNAS storJ storagenode plugin
+# FreeNAS Storj storagenode plugin
 FreeNAS Storagenode plugin to support StorJ binary in FreeNAS Jailed environment
 
 1. This is an iocage plugin. That means that this plugin uses the iocage commands to automatically configure and install the required packages and start the plugin in the jail 
