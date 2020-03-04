@@ -4,7 +4,7 @@
 #
 # Problems Faced and Fixed (and to be handled)
 # 1) r-x permissions for folder in path /root/.local/.... /identity.key were missing
-# 2) 
+# 2) for simulator execution, Base directory for Identity file should exists (/root/.local/share/storj/identity/storagenode/ )
 # ===========================================================================
 
 function get_web_page( $url ) {
@@ -115,12 +115,13 @@ function identityExists() {
 		# 	redirect STDOUT & STDERR output to the temporary LOG FILE
 		#  <BinaryFileName> create storagenode > $logFile 2>&1 
 		$cmd = "$binaryFilePath create storagenode ";
+		$programStartTime = Date('Y-m-d H:i:s');
 		logMessage("Launching command $cmd and capturing log in $logFile ");
 		#$output = shell_exec(" $cmd > $logFile 2>&1 & " );
 		#$pid = exec("$cmd > $logFile 2>&1 & ", $output );
 		$pid = 0 ; $refPid = &$pid ;
 		exec("$cmd > $logFile 2>&1 & ", $output, $refPid );
-		logMessage("Launched command process id = #$pid# ");
+		logMessage("Launched command (@ $programStartTime) process id = #$pid# ");
 
 		# 6) Store in JSON format in (config.json)
 		# 	-> Path of LOG FILE with id "LogFilePath"
@@ -130,6 +131,7 @@ function identityExists() {
 		$data = json_decode($jsonString, true);
 		$data['LogFilePath'] = $logFile;
 		$data['idGenPid'] = $pid ;
+		$data['idGenStartTime'] = $programStartTime ;
 		$newJsonString = json_encode($data);
 		file_put_contents($configFile, $newJsonString);
 
@@ -148,6 +150,7 @@ function identityExists() {
 	    $data = json_decode($jsonString, true);
 	    $file = $data['LogFilePath'];
 	    $pid =  $data['idGenPid']  ;
+	    $prgStartTime = $data['idGenStartTime'] ;
 	    $file = escapeshellarg($file);
 	    $lastline = `tail -r -c 59 $file `;
 
@@ -157,7 +160,8 @@ function identityExists() {
 	    } else if(!file_exists("/proc/$pid")){	# Check PID completion
 		    logMessage("STATUS: Identity generation program execution over" . 
 				" (Possibly with ERROR/UNKNOWN)!\n$lastline");
-		    echo $date . " : " . "Identity generation STATUS:<BR> $lastline" ;
+		    echo "Identity generation STATUS($date):<BR> " .
+		    		"Started at:  $prgStartTime <BR>" . $lastline ;
 	    } else if($lastline == "Done"){	# EXACT Check to be figured out 
 		    logMessage("STATUS: Identity generation completed ");
 		    echo $date . " : " . "Identity generation completed ";
