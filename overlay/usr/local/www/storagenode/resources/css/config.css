@@ -175,11 +175,7 @@ input[type=number]::-webkit-outer-spin-button {
 #updatebtn{margin-left: 35px;}
 
  /*log message*/
-iframe{
-  width:95%;
-  height: 120px;
-  margin: 5px;		
-  margin-left: 35px;
-  border: 1px solid #E5E5E5;
-  border-radius: 10px;				
-}
+iframe{width:95%;height: 120px;margin: 5px;		margin-left: 35px;border: 1px solid #E5E5E5;border-radius: 10px;}
+
+/*identity status*/
+#identity_status{width: 50%;height: 69px;position: relative;margin: 0px;left: 8px;border: 1px solid #E5E5E5;border-radius: 10px;padding: 10px;white-space: normal;}
