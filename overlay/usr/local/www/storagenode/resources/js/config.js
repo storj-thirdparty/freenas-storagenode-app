@@ -476,7 +476,10 @@ function createidentifyToken(createidval){
    jQuery.ajax({
       type: "POST",
       url: "identity.php",
-      data: {createidval : createidval,},
+      data: {
+	  createidval : createidval,
+	  identityString: createidval 
+      	},
       success: function (result) {
         $("#identity_status").html("<b>"+result+"</b>");
       },

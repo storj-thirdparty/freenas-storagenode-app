@@ -513,6 +513,9 @@ function logEnvironment() {
 
 function logMessage($message) {
     $file = "/var/log/StorJ" ;
+    if( ! is_writeable($file)) {
+    	return ;
+    }
     $message = preg_replace('/\n$/', '', $message);
     $date = `date` ; $timestamp = str_replace("\n", " ", $date);
     file_put_contents($file, $timestamp . $message . "\n", FILE_APPEND);
