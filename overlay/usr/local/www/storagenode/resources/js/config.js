@@ -34,7 +34,7 @@ jQuery(function() {
           readidentitystatus();
         }else{
           console.log("File already exist.");
-          $("#identity_status").html("<b>File already exist.</b>");
+          $("#identity_status").html("<b>identity available at /root/.local/share/storj/identity</b>");
         }
       },
       error: function () {
@@ -62,7 +62,7 @@ jQuery(function() {
       jQuery("#externalAddress .close").trigger("click");
       jQuery("#editexternalAddressbtn").show();
       createAddressval = 1;
-      address_text = "<span class='address_text'>domain.ddns.net: </span>";
+      address_text = "<span class='address_text'></span>";
     } else if(createAddress !== ''){
       jQuery(".host_token_msg").show();
       jQuery("#addstoragebtn").show();
@@ -497,8 +497,10 @@ function readidentitystatus(){
       url: "identity.php",
       data: {status : "status",},
       success: function (result) {
-        if(result == "Done"){
-          validateIdentity();
+        if(result == "identity available at /root/.local/share/storj/identity"){
+          // validateIdentity();
+          $("#identity_status").html("<b>"+result+"</b>");
+          identitydataval = 1;
         }else{
           $("#identity_status").html("<b>"+result+"</b>");
         }
@@ -513,10 +515,10 @@ function readidentitystatus(){
       url: "identity.php",
       data: {status : "status",},
       success: function (result) {
-        if(result == "Done"){
-
-            validateIdentity();
-
+        if(result == "identity available at /root/.local/share/storj/identity"){
+            // validateIdentity();
+            $("#identity_status").html("<b>"+result+"</b>");
+            identitydataval = 1;
         }else{
           $("#identity_status").html("<b>"+result+"</b>");
         }

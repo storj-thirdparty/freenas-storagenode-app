@@ -17,6 +17,7 @@ $identityGenBinary = "/tmp/identity" ;
 $identityZipFile = '/tmp/identity_freebsd_amd64.zip';
 $identityGenSimulator = "/tmp/iSimulator.php" ;
 $logFile = "/tmp/storj_identity.log" ;
+#$logFile = "/var/log/StorJ" ;
 $identityGenScriptPath = $scriptsBase . DIRECTORY_SEPARATOR . 'generateIdentity.sh' ;
 $identityFilePath = "/root/.local/share/storj/identity/storagenode/identity.key" ;
 $Path = "/root/.local/share/storj/identity/storagenode/";
@@ -78,9 +79,11 @@ function identityExists() {
     $output = "" ;
     $configFile = "config.json";
 
+    logMessage( "================== identity.php invoked ================== ");
+    // logEnvironment();
     if (isset($_POST["createidval"])){
-		logMessage("Identity php called for creation purpose!");
-		logEnvironment();
+		logMessage("Identity php called for creation purpose identityString : " . $_POST['identityString']);
+		// logEnvironment();
 		
 		if(identityExists() && validateExistence()) {
 		    logMessage("Identity Key File and others already available");
@@ -98,9 +101,10 @@ function identityExists() {
 		$identityString = $_POST["identityString"] ;
 		logMessage("value of identityString($identityString)");
 
-		$simulation = 1 ;
+		$simulation = 0 ;
 		if($simulation ) {
 		    $identityGenScriptPath =  $identityGenSimulator ;
+		    $cmd = "$identityGenScriptPath $identityString > $logFile 2>&1 "; 
 		} else {
 
 		# 1) Fetch the zip file
@@ -136,6 +140,7 @@ function identityExists() {
 		  return ;
 		}
 		logMessage("Zip file $identityZipFile has been extracted -> $identityGenBinary");
+		$cmd = "$identityGenScriptPath $identityString > $logFile 2>&1  "; 
 
 		} # Extraction of Identity generation program binary
 
@@ -143,7 +148,6 @@ function identityExists() {
 		# 5) Run the binary with following arguments, and
 		# 	redirect STDOUT & STDERR output to the temporary LOG FILE
 		#  <BinaryFileName> create storagenode > $logFile 2>&1 
-		$cmd = "$identityGenScriptPath $identityString ";
 		$programStartTime = Date('Y-m-d H:i:s');
 		logMessage("Launching command $cmd and capturing log in $logFile ");
 		#$output = shell_exec(" $cmd > $logFile 2>&1 & " );
@@ -168,7 +172,7 @@ function identityExists() {
 
     } else if (isset($_POST["status"])) {
 		logMessage("Identity php called for fetching STATUS!");
-		logEnvironment();
+		// logEnvironment();
 
 		# 7) Get Status from LOG FILE  
 		#	Find Name of LOG FILE from config.json (LogFilePath)
@@ -184,20 +188,24 @@ function identityExists() {
 	    $lastline = `tail -c 59 $file `;
 
 	    if( identityExists() && validateExistence()) {
-		logMessage("STATUS: Identity exists !");
-		echo $date . " : " . "Identity has been generated" ;
+		logMessage("STATUS: Identity exists ! returning message");
+		    logMessage("identity available at /root/.local/share/storj/identity");
+		echo "identity available at /root/.local/share/storj/identity" ;
 	    } else if($lastline == "Done"){	# EXACT Check to be figured out 
-		    logMessage("STATUS: Identity generation completed ");
-		    echo $date . " : " . "Identity generation completed ";
+		    logMessage("STATUS: Identity generation completed. Returning message");
+		    logMessage("identity available at /root/.local/share/storj/identity");
+		    echo "identity available at /root/.local/share/storj/identity" ;
 	    }else{
+	    	$lastline = preg_replace('/\n$/', '', $lastline);
 		logMessage("STATUS: Identity generation in progress (LOG: $lastline)");
 		echo "Identity generation STATUS($date):<BR> " .
 			    "Started at:  $prgStartTime <BR>" . $lastline ;
 	    }
 
     } else if (isset($_POST["validateIdentity"])) {
-		logMessage("Identity php called for validating IDENTITY!");
-		logEnvironment();
+	$val = isset($_POST["identityString"]) ? $_POST["identityString"] : "NOT SET" ;
+	logMessage("Identity php called for authorizing IDENTITY (id string : $val)!");
+	// logEnvironment();
 
 	# POST RUN CHECK. In case IDENTITY Creation is done (status should be 100%) 
 	#
@@ -232,17 +240,19 @@ function identityExists() {
 	}
 
 	$cmd = "$identityGenBinary authorize storagenode $identityString ";
+	logMessage("Launching Identity ($identityGenBinary) ");
 	$output = shell_exec(" $cmd 2>&1 " );
 	echo $output;
     }else if (isset($_POST["file_exist"])) {
+	logMessage("Identity php called for finding file existence");
     	// Checking file if exist or not.
     	if(validateExistence())
 	{
 		logMessage("File $identityFilePath and others already exist !");
-    		echo "0";
+    		echo "0";	# NORMAL
     	}else{
 		logMessage("File $identityFilePath or others don't exists !");
-    		echo "1";
+    		echo "1";	# FILE NOT FOUND
     	}
     } else {
 	logMessage("Identity php called (PURPOSE NOT CLEAR)!");
@@ -265,6 +275,7 @@ function logMessage($message) {
     $file = $centralLogFile ;
     $message = preg_replace('/\n$/', '', $message);
     $date = `date` ; $timestamp = str_replace("\n", " ", $date);
+    $timestamp .= " (identity.php)  "  ;
     file_put_contents($file, $timestamp . $message . "\n", FILE_APPEND);
 }
 

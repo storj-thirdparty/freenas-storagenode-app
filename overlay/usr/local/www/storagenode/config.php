@@ -19,19 +19,18 @@ $updateScript	= $scriptsBase . DIRECTORY_SEPARATOR . 'storagenodeupdate.sh' ;
 $checkScript    = $scriptsBase . DIRECTORY_SEPARATOR . 'checkStorj.sh' ;
 $storageBinary  = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenode' ;
 $yamlPath	= $scriptsBase . DIRECTORY_SEPARATOR . 'docker-compose_base.yml' ;
-logMessage("------------------------------------------------------------------------------");
-logMessage("Platform Base($platformBase), ModuleBase($moduleBase) scriptBase($scriptsBase)");
-# ------------------------------------------------------------------------
+// logMessage("------------------------------------------------------------------------------");
+// logMessage("Platform Base($platformBase), ModuleBase($moduleBase) scriptBase($scriptsBase)");
+// # ------------------------------------------------------------------------
 
 $requestMethod = $_SERVER['REQUEST_METHOD'] ;
 $logs = array() ;
 
 
 
+logMessage(" ================== config.php =====================" ) ;
 if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
-    logMessage("config called up with isajax 1 ");
-    logEnvironment() ;
-
+    logMessage("config called up with isajax 1 (start storagenode) ");
 
     $_address  = $_POST["address"];
     $_wallet   = $_POST["wallet"];
@@ -60,8 +59,9 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     $str=preg_replace('(^storage.allocated-disk-space:.*)m', "storage.allocated-disk-space: $_storage GB", $str);
     $str=preg_replace('(^storage.allocated-bandwidth:.*)m', "storage.allocated-bandwidth: $_bandwidth TB", $str);
     $str=preg_replace('(^operator.email:.*)m', "operator.email: \"$_emailId\"", $str);
-    $str=preg_replace('(^identity.cert-path:.*)m', "identity.cert-path: \"${_id_dir}identity.cert\"", $str);
-    $str=preg_replace('(^identity.key-path:.*)m', "identity.key-path: ${_id_dir}identity.key", $str);
+    $str=preg_replace('(^identity.cert-path:.*)m', "identity.cert-path: \"/root/.local/share/storj/identity/storagenode/identity.cert\"", $str);
+    $str=preg_replace('(^identity.key-path:.*)m', "identity.key-path: /root/.local/share/storj/ident
+    ity/storagenode/identity.key", $str);
 
     # Still to be handled
     $str=preg_replace('(^server.revocation-dburl:.*)m', "server.revocation-dburl: bolt://${_config}revocations.db", $str); 
@@ -115,11 +115,11 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     file_put_contents($logfile, json_encode($logs));
 
   }else if(isset($_POST['isstopAjax']) && ($_POST['isstopAjax'] == 1)){
+    logMessage("config called up with isStopAjax 1 (stop storagenode)");
     if(file_exists($cfgfile)){
 	$content = file_get_contents($cfgfile);
 	$properties = json_decode($content, true);
     }
-    logMessage("config called up with isStopAjax 1 ");
     $output = shell_exec("bash $stopScript 2>&1 ");
 
     /* Update File again with Log value as well */
@@ -132,11 +132,11 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     file_put_contents($logfile, json_encode($logs));
 
   }else if(isset($_POST['isUpdateAjax']) && ($_POST['isUpdateAjax'] == 1)){
+    logMessage("config called up with isUpdateAjax 1 (update storagenode container)");
     if(file_exists($cfgfile)){
 	$content = file_get_contents($cfgfile);
 	$properties = json_decode($content, true);
     }
-    logMessage("config called up with isUpdateAjax 1 ");
     $server_address = $_SERVER['SERVER_ADDR'] ;
 
     $properties = array(
@@ -164,13 +164,12 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     file_put_contents($logfile, json_encode($logs));
 
   } else if(isset($_POST['isstartajax']) && ($_POST['isstartajax'] == 1)) {
+    logMessage("config called up with isstartajax 1 (Starting ajax system??)");
     if(file_exists($cfgfile)){
 	$content = file_get_contents($cfgfile);
 	$properties = json_decode($content, true);
     }
-    logMessage("config called up with isstartajax 1 ");
-    logMessage("Loaded properties : " . print_r($properties, true));
-    
+    // logMessage("Loaded properties : " . print_r($properties, true));
   } else {
   // DEFAULT : Load contents at start
   logMessage("config called up for default loading ");
@@ -503,11 +502,11 @@ code {
 
 function logEnvironment() {
 	logMessage(
-		"\n----------------------------------------------\n"
-		. "ENV is : " . print_r($_ENV, true)
-		. "POST is : " . print_r($_POST, true)
-		. "SERVER is : " . print_r($_SERVER, true)
-		. "----------------------------------------------\n"
+		// "\n----------------------------------------------\n"
+		// . "ENV is : " . print_r($_ENV, true)
+		"POST is : " . print_r($_POST, true)
+		// . "SERVER is : " . print_r($_SERVER, true)
+		// . "----------------------------------------------\n"
 	);
 }
 
@@ -518,6 +517,7 @@ function logMessage($message) {
     }
     $message = preg_replace('/\n$/', '', $message);
     $date = `date` ; $timestamp = str_replace("\n", " ", $date);
+    $timestamp .= " (config.php) " ;
     file_put_contents($file, $timestamp . $message . "\n", FILE_APPEND);
 }
 
