@@ -7,7 +7,7 @@ module="StorJ"
 LOGFILE="/var/log/StorJ"
 BASEDIR="/root/storj_base"
 STORBIN="/usr/local/www/storagenode/scripts/storagenode"
-CNFFILE="/usr/local/www/storagenode/scripts/output.csv"
+CNFFILE="/usr/local/www/storagenode/config.json"
 CFGDIR="$BASEDIR/config"
 YMLFILE="$CFGDIR/config.yaml"
 
