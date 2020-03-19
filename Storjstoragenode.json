@@ -1,6 +1,6 @@
 {
   "name": "Storjstoragenode",
-  "release": "11.2-RELEASE",
+  "release": "11.3-RELEASE",
   "artifact": "https://github.com/utropicmedia/storj-freenas",
   "properties": {
        "mount_procfs": 1,
@@ -30,6 +30,6 @@
           }
           ]
   },
-  "official": false
+  "official": false,
   "revision": "0"
 }
