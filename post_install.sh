@@ -57,6 +57,10 @@ chown -R ${user}:${user} $YMLFILE
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
+IDENTITYDIR=/root/.local/share/storj/identity
+mkdir -p ${IDENTITYDIR}/storagenode
+chown -R ${user} ${IDENTITYDIR}
+
 # Temporary fix
 cp -p $CNFFILE /usr/local/www/storagenode
 chown -R ${user} /usr/local/www/storagenode
