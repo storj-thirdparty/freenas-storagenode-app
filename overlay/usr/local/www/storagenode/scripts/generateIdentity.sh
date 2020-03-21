@@ -46,7 +46,7 @@ fi
 
 logMessage "Launching Identity generation program "
 logMessage "Running $identityBinary create storagenode "
-$identityBinary create storagenode
+$identityBinary create storagenode --identity-dir /root/.local/share/storj/identity
 logMessage "Identity key generation completed (STEP#1) "
 
 if [[ ! -f $identityKey  ]]
@@ -63,7 +63,8 @@ then
 fi
 
 logMessage "Authorizing identity using identity key string "
-$identityBinary authorize storagenode $identityString
+logMessage "Running $identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity "
+$identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity
 
 count=$(/bin/ls $identityDirPath | wc -l)
 if [[ $count -lt 6 ]]
