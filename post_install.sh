@@ -6,8 +6,14 @@ user="www"
 module="StorJ"
 LOGFILE="/var/log/StorJ"
 BASEDIR="/root/storj_base"
-STORBIN="/usr/local/www/storagenode/scripts/storagenode"
-CNFFILE="/usr/local/www/storagenode/config.json"
+IDENTITYBINDIR="/tmp"
+IDENTITYZIP="${IDENTITYBINDIR}/identity_freebsd_amd64.zip"
+IDENTITYBIN="${IDENTITYBINDIR}/identity"
+IDENTITYDIR="/root/.local/share/storj/identity"
+STORBINDIR="/usr/local/www/storagenode/scripts"
+STORBIN="${STORBINDIR}/storagenode"
+STORBINZIP=/tmp/storagenode_freebsd_amd64.zip
+CNFFILE="/usr/local/www/storagenode/scripts/output.csv"
 CFGDIR="$BASEDIR/config"
 YMLFILE="$CFGDIR/config.yaml"
 
@@ -41,10 +47,18 @@ if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-j
 
 fi
 
+# Fetch identity binary
+curl -L --proto-redir http,https -o ${IDENTITYZIP} https://github.com/storj/storj/releases/download/v1.0.0/identity_freebsd_amd64.zip
+unzip -d ${IDENTITYBINDIR} -j ${IDENTITYZIP}
+chmod a+x ${IDENTITYBIN}
+
+
 # Fetch storagenode binary and execute for basic content creation
-curl -o $STORBIN https://alpha.transfer.sh/RGnLr/storagenode
-chmod a+x $STORBIN
-echo `date` "Running storagenode binary for setup" >> $LOGFILE
+curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.0.0/storagenode_freebsd_amd64.zip
+unzip -d ${STORBINDIR} -j ${STORBINZIP}
+chmod a+x ${STORBIN}
+
+echo `date` "Running storagenode binary ${STORBIN} for setup" >> $LOGFILE
 $STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
 
 ln -s /usr/local/www/storagenode/images/Storagenode_64.png /usr/local/www/storagenode/favicon.ico 
@@ -57,7 +71,6 @@ chown -R ${user}:${user} $YMLFILE
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
-IDENTITYDIR=/root/.local/share/storj/identity
 mkdir -p ${IDENTITYDIR}/storagenode
 chown -R ${user} ${IDENTITYDIR}
 

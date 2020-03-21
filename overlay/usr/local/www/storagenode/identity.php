@@ -107,6 +107,7 @@ function identityExists() {
 		    $cmd = "$identityGenScriptPath $identityString > $logFile 2>&1 "; 
 		} else {
 
+		/*
 		# 1) Fetch the zip file
 		$result = get_web_page($urlToFetch ) ;
 		$content = $result['content'];
@@ -140,6 +141,7 @@ function identityExists() {
 		  return ;
 		}
 		logMessage("Zip file $identityZipFile has been extracted -> $identityGenBinary");
+		 */
 		$cmd = "$identityGenScriptPath $identityString > $logFile 2>&1  "; 
 
 		} # Extraction of Identity generation program binary
