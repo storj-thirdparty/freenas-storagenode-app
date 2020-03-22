@@ -13,7 +13,6 @@ IDENTITYDIR="/root/.local/share/storj/identity"
 STORBINDIR="/usr/local/www/storagenode/scripts"
 STORBIN="${STORBINDIR}/storagenode"
 STORBINZIP=/tmp/storagenode_freebsd_amd64.zip
-CNFFILE="/usr/local/www/storagenode/scripts/output.csv"
 CFGDIR="$BASEDIR/config"
 YMLFILE="$CFGDIR/config.yaml"
 
@@ -31,7 +30,6 @@ echo `date` "Setup started from dir $0 => $pdir "	>> $LOGFILE
 echo `date` "BASEDIR($BASEDIR)"				>> $LOGFILE
 echo `date` "STORBIN($STORBIN)"				>> $LOGFILE
 echo `date` "LOGFILE($LOGFILE)"				>> $LOGFILE
-echo `date` "CNFFILE($CNFFILE)"				>> $LOGFILE
 echo `date` "user($user)"				>> $LOGFILE
 echo `date` "RUnning in context of user:" `id`		>> $LOGFILE
 
@@ -73,11 +71,7 @@ find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
 mkdir -p ${IDENTITYDIR}/storagenode
 chown -R ${user} ${IDENTITYDIR}
-
-# Temporary fix
-cp -p $CNFFILE /usr/local/www/storagenode
 chown -R ${user} /usr/local/www/storagenode
-chmod a+rw $CNFFILE
 
 # Enable the service
 sysrc -f /etc/rc.conf nginx_enable=YES
@@ -112,6 +106,4 @@ if [ "${1}" = "standard" ]; then
   }; end_report
 
 fi
-
-
 
