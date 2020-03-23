@@ -59,7 +59,7 @@ count=$(/bin/ls $identityDirPath | wc -l)
 if [[ $count -lt 4 ]]
 then
     logMessage "ERROR: All Identity files not generated on run" 
-    exit 4
+    #exit 4
 fi
 
 logMessage "Authorizing identity using identity key string "
@@ -69,7 +69,7 @@ $identityBinary authorize storagenode $identityString --identity-dir /root/.loca
 count=$(/bin/ls $identityDirPath | wc -l)
 if [[ $count -lt 6 ]]
 then
-    logMessage "Error: Authorization of Identity Signature has failed (Only $count files found)!!"
+    logMessage "Error: Authorization of Identity Signature has possibly failed (Only $count files found)!!"
     exit 5
 fi
 

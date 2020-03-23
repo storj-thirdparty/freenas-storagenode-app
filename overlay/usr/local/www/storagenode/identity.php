@@ -250,10 +250,10 @@ function identityExists() {
     	// Checking file if exist or not.
     	if(validateExistence())
 	{
-		logMessage("File $identityFilePath and others already exist !");
+		logMessage("(file_exist) File $identityFilePath and others already exist !");
     		echo "0";	# NORMAL
     	}else{
-		logMessage("File $identityFilePath or others don't exists !");
+		logMessage("(file_exist) File $identityFilePath or others don't exists !");
     		echo "1";	# FILE NOT FOUND
     	}
     } else {
