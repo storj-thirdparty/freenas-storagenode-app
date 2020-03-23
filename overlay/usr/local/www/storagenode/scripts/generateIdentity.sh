@@ -63,8 +63,8 @@ then
 fi
 
 logMessage "Authorizing identity using identity key string "
-logMessage "Running $identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity "
-$identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity
+logMessage "Running $identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity --signer.tls.revocation-dburl bolt:///root/.local/share/storj/identity/revocations.db "
+$identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity --signer.tls.revocation-dburl bolt:///root/.local/share/storj/identity/revocations.db
 
 count=$(/bin/ls $identityDirPath | wc -l)
 if [[ $count -lt 6 ]]
