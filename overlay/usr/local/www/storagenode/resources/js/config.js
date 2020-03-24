@@ -97,7 +97,7 @@ jQuery(function() {
     showstartbutton(identitydataval,createAddressval,createWalletval,storageallocateval,bandwidthAllocationval,emailiddataval,directoryAllocationval);
 
 
-  if(jQuery.isNumeric(storageallocate) && Number.isInteger(storageallocate) &&  storageallocate >= 500){
+  if(jQuery.isNumeric(storageallocate) && Number.isInteger(storageallocate) &&  storageallocate >= 12){
       jQuery(".storage_token_msg").hide();
       jQuery("#addstoragebtn").hide();
       jQuery("#storageAllocation .close").trigger('click');
@@ -293,7 +293,7 @@ jQuery(function() {
   });
   jQuery('#allocate_storage').click(function(){
     storageallocate = parseInt(jQuery("#storage_allocate").val());
-    if(jQuery.isNumeric(storageallocate) && Number.isInteger(storageallocate) &&  storageallocate >= 500){
+    if(jQuery.isNumeric(storageallocate) && Number.isInteger(storageallocate) &&  storageallocate >= 12){
       jQuery(".storage_token_msg").hide();
       jQuery("#addstoragebtn").hide();
       jQuery("#storageAllocation .close").trigger('click');
