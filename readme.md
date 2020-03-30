@@ -3,6 +3,7 @@ FreeNAS Storagenode plugin to support StorJ binary in FreeNAS Jailed environment
 
 1. This is an iocage plugin. That means that this plugin uses the iocage commands to automatically configure and install the required packages and start the plugin in the jail 
 2. This plugin is developed for FreeNAS 11.x. 
+3. This Feature Branch Integrate RClone
 
 
 * You wont be able to run multiple instance of this plugin as there may be issues with the port forwarding
