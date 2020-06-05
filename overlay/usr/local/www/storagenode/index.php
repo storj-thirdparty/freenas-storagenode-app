@@ -1,5 +1,4 @@
 <?php
-# Redirect to config.php
-header('Location: config.php') ;
-exit;
+    header("Location: config.php");
+    die();
 ?>
