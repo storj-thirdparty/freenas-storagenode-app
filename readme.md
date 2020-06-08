@@ -1,5 +1,5 @@
 # FreeNAS Storj storagenode plugin
-FreeNAS Storagenode plugin to support StorJ binary in FreeNAS Jailed environment
+FreeNAS Storagenode plugin to support STORJ storagenode binary in FreeNAS Jailed environment
 
 1. This is an iocage plugin. That means that this plugin uses the iocage commands to automatically configure and install the required packages and start the plugin in the jail 
 2. This plugin is developed for FreeNAS 11.x. 
@@ -61,14 +61,13 @@ Usage Instructions of Plugin
 2. Identity should be created on other machine as it make take time on NAS. Folllow the instruction on the link https://documentation.storj.io/dependencies/identity
 3. Copy the whole identity folder in the folde mentioned in the step 1.
 4. Set parameters by clicking the each of the Setup items
-5. Put the path of the identity as copied in step 1 as **"/root/storj_base/identity/storagenode/ "**. Please remember that this is the absolute path with reference to the jail of the plugin
+5. Put the path of the identity as copied in step 1 as **"/root/storj_base/identity/storagenode/ "**. Please remember that this is the absolute path with reference to the jail of the plugin. Optionally you can create the identity at a given path by providing authorization token
 6. Similarly please put the path of the folder being shared 
-7. **Email** Provide your emai id.
-8. **Bandwith**: The vlaue be more than 2 TB (Dont fill the unit)
-9. **Storage** : The vlaue be more than 500 GB  (Dont fill the unit)
-10. **Ethereum Wallet Address**: Please put the correct address and verify as the error will only be known after you press the start storagenode button.
-11. Press " **Start My Storagenode** " Button
-12. The area below the buttons will show the messages and error logs. If they dont apear just press the **"Config"** link on the menu side bar.
+7. **Email** Provide your emai id. This parameter is options
+8. **Storage** : The vlaue be more than 500 GB  (Dont fill the unit)
+9. **Ethereum Wallet Address**: Please put the correct address and verify as the error will only be known after you press the start storagenode button.
+10. Press " **Start My Storagenode** " Button
+11. The area below the buttons will show the messages and error logs. If they dont apear just press the **"Config"** link on the menu side bar.
 
 
 
