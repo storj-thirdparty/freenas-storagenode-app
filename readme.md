@@ -63,7 +63,7 @@ Usage Instructions of Plugin
 4. Set parameters by clicking the each of the Setup items
 5. Put the path of the identity as copied in step 1 as **"/root/storj_base/identity/storagenode/ "**. Please remember that this is the absolute path with reference to the jail of the plugin. Optionally you can create the identity at a given path by providing authorization token
 6. Similarly please put the path of the folder being shared 
-7. **Email** Provide your emai id. This parameter is options
+7. **Email** Provide your emai id. This parameter is optional
 8. **Storage** : The vlaue be more than 500 GB  (Dont fill the unit)
 9. **Ethereum Wallet Address**: Please put the correct address and verify as the error will only be known after you press the start storagenode button.
 10. Press " **Start My Storagenode** " Button
