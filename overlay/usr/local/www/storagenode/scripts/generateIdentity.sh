@@ -9,29 +9,41 @@
 
 
 function logMessage {
-    logFile="/var/log/StorJ" 
+    logFile="/var/log/STORJ" 
     echo `date` ": (generateIdentity) $@" >> $logFile 
-    echo $@
+    echo "$@"
 }
 
 selfName=`basename $0`
+scriptDir=$(dirname $0)
+identityPidFileDir=$(dirname $scriptDir)
+
 logMessage "==== Generate Identity called ($@) ============"
-if [[ $# -lt 1 ]] 
+if [[ $# -lt 2 ]] 
 then
     logMessage "ERROR($selfName): sufficient params not supplied ($@)"
-    logMessage "Usage($selfName): $selfName <IdentityKeyString>  "
+    logMessage "Usage($selfName): $selfName <IdentityKeyString>  <keyBase>"
     exit 1 
 fi
-identityString=$1
+identityString="$1"
 user=www
 home=/root
-identitySimulator=/tmp/iSimulator.php
+identityBase=/share/Public/identity
+identityBase="${home}/.local/share/storj/identity"
+keyBase="$2"
+
+identityLogFile="${identityBase}"/logs/storj_identity.log
+identityDirPath="${identityBase}"/storagenode
+identityBinary="${identityBase}".bin/identity
 identityBinary=/tmp/identity
-identityDirPath=${home}/.local/share/storj/identity/storagenode
+
+identityPidFile="${identityPidFileDir}"/identity.pid
+
+identityKey=${identityBase}/storagenode/identity.key
+identityKey="${keyBase}"/storagenode/identity.key
+caKey=${identityBase}/storagenode/ca.key
+caKey="${keyBase}"/storagenode/ca.key
 fileList="ca.key identity.key ca.cert identity.cert"
-identityKey=${home}/.local/share/storj/identity/storagenode/identity.key
-caKey=${home}/.local/share/storj/identity/storagenode/ca.key
-runSimulator=0
 
 if [[ -f $identityKey ]] 
 then
@@ -39,15 +51,24 @@ then
     exit 2
 fi
 
-if [[ $runSimulator -gt 0 ]]
-then
-    identityBinary=" php /tmp/iSimulator.php "
-fi
-
 logMessage "Launching Identity generation program "
 logMessage "Running $identityBinary create storagenode "
-$identityBinary create storagenode --identity-dir /root/.local/share/storj/identity
-logMessage "Identity key generation completed (STEP#1) "
+mkdir -p ${keyBase}
+$identityBinary create storagenode --identity-dir ${keyBase}  > ${identityLogFile} 2>&1 & 
+
+BG_PID=$!
+echo ${BG_PID} > ${identityPidFile}
+function cleanup {
+    rm -f ${identityPidFile}
+}
+trap cleanup EXIT
+
+logMessage "$identityBinary launched with PID ${BG_PID}. Going to wait for it to complete"
+while  [ -d "/proc/${BG_PID}" ]
+do
+    sleep 1
+done
+logMessage "Identity key generation ${identityBinary}:${BG_PID} completed (STEP#1) "
 
 if [[ ! -f $identityKey  ]]
 then
@@ -62,31 +83,33 @@ then
     #exit 4
 fi
 
-logMessage "Authorizing identity using identity key string "
-logMessage "Running $identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity --signer.tls.revocation-dburl bolt:///root/.local/share/storj/identity/revocations.db "
-$identityBinary authorize storagenode $identityString --identity-dir /root/.local/share/storj/identity --signer.tls.revocation-dburl bolt:///root/.local/share/storj/identity/revocations.db
+logMessage "Authorizing identity using identity key string (IdentityPidRef:${BG_PID}) "
+logMessage "Running $identityBinary authorize storagenode $identityString --identity-dir ${keyBase} --signer.tls.revocation-dburl bolt://${keyBase}/revocations.db "
+$identityBinary authorize storagenode $identityString --identity-dir ${keyBase} --signer.tls.revocation-dburl bolt://${keyBase}/revocations.db
 
 count=$(/bin/ls $identityDirPath | wc -l)
 if [[ $count -lt 6 ]]
 then
-    logMessage "Error: Authorization of Identity Signature has possibly failed (Only $count files found)!!"
+    logMessage "Error: Authorization of Identity Signature has possibly failed (Only $count files found)(IdentityPidRef:${BG_PID})!!"
     exit 5
 fi
 
-numBeginCa=`grep -c BEGIN /root/.local/share/storj/identity/storagenode/ca.cert`
-numBeginId=`grep -c BEGIN /root/.local/share/storj/identity/storagenode/identity.cert`
+numBeginCa=`grep -c BEGIN ${keyBase}/storagenode/ca.cert`
+numBeginId=`grep -c BEGIN ${keyBase}/storagenode/identity.cert`
 
 if [[ $numBeginCa -ne 2 ]]
 then
-    logMessage "Error: Authorization has failed (#begin in CA=$numBeginCa) "
+    logMessage "Error: Authorization has failed (#begin in CA=$numBeginCa) (IdentityPidRef:${BG_PID}) folder (keybase:$keyBase)"
     exit 6
 fi
 if [[ $numBeginId -ne 3 ]]
 then
-    logMessage "Error: Authorization has failed (#begin in ID=$numBeginId) "
+    logMessage "Error: Authorization has failed (#begin in ID=$numBeginId) (IdentityPidRef:${BG_PID}) folder (keybase:$keyBase)"
     exit 7
 fi
-logMessage "Authorization of Identity Signature Completed (STEP #2)"
-logMessage "Identity Generation Successfully completed"
+logMessage "Authorization of Identity Signature Completed (STEP #2)(IdentityPidRef:${BG_PID}) folder (keybase:$keyBase)"
+logMessage "Identity Generation Successfully completed(IdentityPidRef:${BG_PID})"
 logMessage Done
+logFile=/share/Public/identity/logs/storj_identity.log
+echo > "$logFile"
 exit 0
