@@ -63,6 +63,41 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     file_put_contents($file, json_encode($properties));
 
 
+    // YAML
+
+    $_config  = $_directory;      # config Dir
+    $yamlPath = $_config . "config.yaml" ;
+    logMessage( "Going to update config file @ path $yamlPath \n");
+    $str=file_get_contents($yamlPath);
+
+    # ===========================================================================
+    // simple find and replace
+    $str=preg_replace('(^server.address:.*)m', "server.address: :$_address", $str);
+    $str=preg_replace('(^operator.wallet:.*)m', "operator.wallet: \"$_wallet\"", $str);
+    $str=preg_replace('(^storage.allocated-disk-space:.*)m', "storage.allocated-disk-space: $_storage GB", $str);
+    $str=preg_replace('(^operator.email:.*)m', "operator.email: \"$_emailId\"", $str);
+    $str=preg_replace('(^identity.cert-path:.*)m', "identity.cert-path: \"/root/.local/share/storj/identity/storagenode/identity.cert\"", $str);
+    $str=preg_replace('(^identity.key-path:.*)m', "identity.key-path: /root/.local/share/storj/ident
+    ity/storagenode/identity.key", $str);
+
+    # Still to be handled
+    $str=preg_replace('(^server.revocation-dburl:.*)m', "server.revocation-dburl: bolt://${_config}revocations.db", $str); 
+    $str=preg_replace('(^storage2.trust.cache-path:.*)m', "storage2.trust.cache-path: ${_config}", $str); 
+
+    # Cleanup
+    $str=preg_replace('(^# Last UPDATE by configuration script @.*)m', "", $str); # Clean earlier update strings
+
+    $str.="# Last update by configuration script @ " . `date` ;
+    # ===========================================================================
+    #
+    logMessage( "---------------------------------------------------\n" .
+  "Updated $yamlPath @ " . `date` . "with content:\n" .
+  $str .  
+  "\n------------------------------------------------------\n");
+    // write to target file
+    file_put_contents($yamlPath, $str);
+
+
   }else if(isset($_POST['isstopAjax']) && ($_POST['isstopAjax'] == 1)){
 
     $content = file_get_contents($file);
@@ -151,10 +186,10 @@ code {
              if(file_exists($identityFile))
              {
                 $pid = file_get_contents($identityFile);
-		$pid = (int)$pid ;
+		            $pid = (int)$pid ;
 
                 // Figure out whether process is running
-		$status = exec("if [ -d '/proc/$pid' ] ; then (echo 1 ; exit 0) ; else (echo 0 ; exit 2 ) ; fi");
+		            $status = exec("if [ -d '/proc/$pid' ] ; then (echo 1 ; exit 0) ; else (echo 0 ; exit 2 ) ; fi");
 
                   if($status == 1) {
                     // if process is running then print true.
@@ -275,7 +310,7 @@ code {
                           </div>
                           <div class="modal-body">
                             <p class="modal-input-title">Host Address</p>
-                          <input class="modal-input" id="host_address" name="host_address" type="text" class="quantity" placeholder="hostname.ddns.net:28967" value="<?php if(isset($prop['Port'])) echo $prop['Port'] ?>"/>
+                          <input class="modal-input" id="host_address" name="host_address" type="text" class="quantity" placeholder="domain.ddns.net:28967" value="<?php if(isset($prop['Port'])) echo $prop['Port'] ?>"/>
                             <p class="host_token_msg msg" style="display:none;">Enter Valid Host Address</p>
                           </div>
                           <div class="modal-footer">
