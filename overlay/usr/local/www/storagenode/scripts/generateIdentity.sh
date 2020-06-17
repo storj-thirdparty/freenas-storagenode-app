@@ -10,11 +10,11 @@
 
 function logMessage {
     logFile="/var/log/STORJ" 
-    echo `date` ": (generateIdentity) $@" >> $logFile 
+    echo $(date) ": (generateIdentity) $@" >> $logFile 
     echo "$@"
 }
 
-selfName=`basename $0`
+selfName=$(basename $0)
 scriptDir=$(dirname $0)
 identityPidFileDir=$(dirname $scriptDir)
 
@@ -28,20 +28,21 @@ fi
 identityString="$1"
 user=www
 home=/root
-identityBase=/share/Public/identity
+#identityBase=/share/Public/identity
 identityBase="${home}/.local/share/storj/identity"
 keyBase="$2"
 
-identityLogFile="${identityBase}"/logs/storj_identity.log
-identityDirPath="${identityBase}"/storagenode
-identityBinary="${identityBase}".bin/identity
+# identityLogFile="${identityBase}"/logs/storj_identity.log
+# identityDirPath="${identityBase}"/storagenode
+# identityBinary="${identityBase}".bin/identity
 identityBinary=/tmp/identity
+identityLogFile=/tmp/storj_identity.log
 
 identityPidFile="${identityPidFileDir}"/identity.pid
 
-identityKey=${identityBase}/storagenode/identity.key
+identityKey=${keyBase}/storagenode/identity.key
 identityKey="${keyBase}"/storagenode/identity.key
-caKey=${identityBase}/storagenode/ca.key
+caKey="${keyBase}"/storagenode/ca.key
 caKey="${keyBase}"/storagenode/ca.key
 fileList="ca.key identity.key ca.cert identity.cert"
 

@@ -7,8 +7,8 @@ $platformBase   = $_SERVER['DOCUMENT_ROOT'];
 $moduleBase     = $platformBase . dirname($_SERVER['PHP_SELF']) ;
 $scriptsBase    = $moduleBase . '/scripts' ;
 
-$identityGenBinary = "/share/Public/identity.bin/identity" ;
-$logFile = "/share/Public/identity/logs/storj_identity.log" ;
+$identityGenBinary = "/tmp/identity" ;
+$logFile = "/tmp/storj_identity.log" ;
 
 $data = loadConfig("${moduleBase}/config.json");
 # Update config json file if updates provided
@@ -24,12 +24,13 @@ $identityGenScriptPath = $scriptsBase . DIRECTORY_SEPARATOR . 'generateIdentity.
 $Path = $data["Identity"] . "/storagenode";
 $identityFilePath = "${Path}/identity.key" ;
 $urlToFetch = "https://github.com/storj/storj/releases/latest/download/identity_linux_amd64.zip" ;
-$identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
+//$identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
+$identitypidFile   = $scriptBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 
 # ------------------------------------------------------------------------
 
 
-    date_default_timezone_set('Asia/Kolkata');
+    //date_default_timezone_set('Asia/Kolkata');
     $date = Date('Y-m-d H:i:s');
     $output = "" ;
     $configFile = "config.json";
