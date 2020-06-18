@@ -4,7 +4,7 @@ sa="/root/storj"
 pdir="${0%/*}"
 user="www"
 module="StorJ"
-LOGFILE="/var/log/StorJ"
+LOGFILE="/var/log/STORJ"
 BASEDIR="/root/storj_base"
 IDENTITYBINDIR="/tmp"
 IDENTITYZIP="${IDENTITYBINDIR}/identity_freebsd_amd64.zip"
@@ -46,13 +46,13 @@ if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-j
 fi
 
 # Fetch identity binary
-curl -L --proto-redir http,https -o ${IDENTITYZIP} https://github.com/storj/storj/releases/download/v1.0.0/identity_freebsd_amd64.zip
+curl -L --proto-redir http,https -o ${IDENTITYZIP} https://github.com/storj/storj/releases/download/v1.6.3/identity_freebsd_amd64.zip
 unzip -d ${IDENTITYBINDIR} -j ${IDENTITYZIP}
 chmod a+x ${IDENTITYBIN}
 
 
 # Fetch storagenode binary and execute for basic content creation
-curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.0.0/storagenode_freebsd_amd64.zip
+curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.6.3/storagenode_freebsd_amd64.zip
 unzip -d ${STORBINDIR} -j ${STORBINZIP}
 chmod a+x ${STORBIN}
 
