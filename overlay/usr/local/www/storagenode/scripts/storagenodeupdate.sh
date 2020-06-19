@@ -12,7 +12,7 @@ echo $(date) "Request for updating storagenode binary " >> $LOG
  
 
 echo "Extracting new stoage binary to $STORBIN "
-curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.0.0/storagenode_freebsd_amd64.zip
+curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.6.3/storagenode_freebsd_amd64.zip
 unzip -d ${STORBINDIR} -j ${STORBINZIP} -o 
 chmod a+x ${STORBIN}
 

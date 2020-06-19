@@ -33,7 +33,7 @@ if($data){
 
 
 if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
-    logMessage("config called up with isajax 1 ");
+    logMessage("Config called to start Storagenode ");
     logEnvironment() ;
 
 
@@ -104,7 +104,7 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     $content = file_get_contents($file);
     $properties = json_decode($content, true);
 
-    logMessage("config called up with isStopAjax 1 ");
+    logMessage("Config called to stop Storagenode ");
     $output = shell_exec("/usr/local/bin/bash $stopScript 2>&1 ");
 
     /* Update File again with Log value as well */
@@ -115,7 +115,7 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     $content = file_get_contents($file);
     $properties = json_decode($content, true);
 
-    logMessage("config called up with isUpdateAjax 1 ");
+    logMessage("Config called to update Storagenode ");
     $server_address = $_SERVER['SERVER_ADDR'] ;
     $output = shell_exec("/usr/local/bin/bash $updateScript $file $_address $_wallet $_storage $_identity_directory $_directory $server_address $_emailId 2>&1 ");
 
@@ -124,7 +124,7 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     file_put_contents($file, json_encode($properties));
 
   } else if(isset($_POST['isstartajax']) && ($_POST['isstartajax'] == 1)) {
-    logMessage("config called up with isstartajax 1 ");
+    logMessage("Config called to fetch parameters and log ");
     $content = file_get_contents($file);
     $prop = json_decode($content, true);
     $output = "<br><b>LATEST LOG :</b> <br><code>" . $prop['last_log'] . "</code>";

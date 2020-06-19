@@ -19,7 +19,6 @@
 	$checkScript    = $scriptsBase . DIRECTORY_SEPARATOR . 'checkStorj.sh' ;
 	$isRunning      = $scriptsBase . DIRECTORY_SEPARATOR . 'isRunning.sh' ;
 	$storageBinary  = $scriptsBase . DIRECTORY_SEPARATOR . 'storagenode' ;
-	$yamlPath	    = $scriptsBase . DIRECTORY_SEPARATOR . 'docker-compose_base.yml' ;
 	$identityFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 
 ?>
