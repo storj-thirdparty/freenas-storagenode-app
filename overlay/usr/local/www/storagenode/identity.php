@@ -24,8 +24,8 @@ $identityGenScriptPath = $scriptsBase . DIRECTORY_SEPARATOR . 'generateIdentity.
 $Path = $data["Identity"] . "/storagenode";
 $identityFilePath = "${Path}/identity.key" ;
 $urlToFetch = "https://github.com/storj/storj/releases/latest/download/identity_linux_amd64.zip" ;
-//$identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
-$identitypidFile   = $scriptBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
+$identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
+//$identitypidFile   = $scriptBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 
 # ------------------------------------------------------------------------
 
@@ -160,7 +160,8 @@ $identitypidFile   = $scriptBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 		$newJsonString = json_encode($data);
 		$file = $data['LogFilePath'];
 		$file = escapeshellarg($file);
-	    $lastline = `tail -c 59 $file `;
+	    #$lastline = `tail -c 59 $file `;
+		$lastline =  `tail -c160 $file | sed -e 's#\\r#\\n#g' | tail -1 ` ;															 
 		file_put_contents($configFile, $newJsonString);
 
 		logMessage("Invoked identity generation program ($identityGenScriptPath) ");

@@ -6,11 +6,10 @@ STORBIN="${STORBINDIR}/storagenode"
 STORBINZIP=/tmp/newstoragenode_freebsd_amd64.zip
 
 
-PKGNAME="StorJ"
+PKGNAME="STORJ"
 LOG="/var/log/$PKGNAME"
-echo `date` "Request for updating storagenode binary " >> $LOG
-
-# Needs to be optimized 
+echo $(date) "Request for updating storagenode binary " >> $LOG
+ 
 
 echo "Extracting new stoage binary to $STORBIN "
 curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.0.0/storagenode_freebsd_amd64.zip

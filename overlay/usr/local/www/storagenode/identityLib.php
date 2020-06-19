@@ -33,7 +33,7 @@ function killIdentityProcess($identityPidFile) {
 	    $pid = file_get_contents($identityPidFile);
 	    $pid = (int)$pid ;
 	    // Stop Identity
-	    $output = shell_exec("kill -9 $pid");
+	    $output = shell_exec("kill -9 $pid 2>&1 ");
 	    $msg = "Identity creation stopped (no identity generated)!\n$output";
     } else {
 	    $msg = "Identity creation process not found";
