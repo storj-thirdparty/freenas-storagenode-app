@@ -23,7 +23,8 @@ YMLFILE="$CFGDIR/config.yaml"
 # Setup the user account first 
 pw groupadd -n ${group} -g ${gid}
 pw groupmod ${group} -m www
-pw useradd -n ${user} -u ${uid} -d /nonexistent -s /usr/sbin/nologin -g ${group} -m
+mkdir -p /home
+pw useradd -n ${user} -u ${uid} -d /home/${user} -s /usr/sbin/nologin -g ${group} -m
 
 chown -R ${user} /var/db/${PLUGIN}
 sysrc "${PLUGIN}_user=${user}"
@@ -33,7 +34,7 @@ if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
 fi;
 cp -R "${pdir}/overlay/usr/local/www/storagenode" /usr/local/www/
-chown -R ${user} /usr/local/www/storagenode
+chown -R ${user}:${group} /usr/local/www/storagenode
 cp -R "${pdir}/overlay/root/storj_base" /root
 
 touch $LOGFILE
@@ -78,15 +79,16 @@ ln -s /usr/local/www/storagenode/images/Storagenode_64.png /usr/local/www/storag
 
 chmod a+rwx $CFGDIR
 chmod a+rw $YMLFILE
-chown -R ${user}:${user} $BASEDIR
-chown -R ${user}:${user} $YMLFILE
+chown -R ${user}:${group} $BASEDIR
+chown -R ${user}:${group} $YMLFILE
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
 mkdir -p ${IDENTITYDIR}/storagenode
-chown -R ${user} ${IDENTITYDIR}
-chown -R ${user} /usr/local/www/storagenode
+chown -R ${user}:${group} ${IDENTITYDIR}
+chown -R ${user}:${group} /usr/local/www/storagenode
+find /usr/local/www/storagenode -type d -print | xargs chmod g+rwx 
 
 # Enable the service
 sysrc -f /etc/rc.conf nginx_enable=YES
