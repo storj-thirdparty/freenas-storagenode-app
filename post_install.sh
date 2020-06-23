@@ -2,7 +2,11 @@
 
 sa="/root/storj"
 pdir="${0%/*}"
-user="www"
+user=storj
+group=storj
+uid=3000
+gid=3000
+PLUGIN=storj
 module="StorJ"
 LOGFILE="/var/log/STORJ"
 BASEDIR="/root/storj_base"
@@ -15,6 +19,15 @@ STORBIN="${STORBINDIR}/storagenode"
 STORBINZIP=/tmp/storagenode_freebsd_amd64.zip
 CFGDIR="$BASEDIR/config"
 YMLFILE="$CFGDIR/config.yaml"
+
+# Setup the user account first 
+pw groupadd -n ${group} -g ${gid}
+pw groupmod ${group} -m www
+pw useradd -n ${user} -u ${uid} -d /nonexistent -s /usr/sbin/nologin -g ${group} -m
+
+chown -R ${user} /var/db/${PLUGIN}
+sysrc "${PLUGIN}_user=${user}"
+service ${PLUGIN} start
 
 if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
