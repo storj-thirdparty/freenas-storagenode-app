@@ -62,19 +62,19 @@ if(isset($_POST['isajax']) && ($_POST['isajax'] == 1)) {
     // YAML
 
     $_config  = $_directory;      # config Dir
-    $yamlPath = $_config . "config.yaml" ;
+    $yamlPath = $_config . DIRECTORY_SEPARATOR . "config.yaml" ;
     logMessage( "Going to update config file @ path $yamlPath \n");
     $str=file_get_contents($yamlPath);
 
     # ===========================================================================
     // simple find and replace
-    $str=preg_replace('(^server.address:.*)m', "server.address: :$_address", $str);
-    $str=preg_replace('(^operator.wallet:.*)m', "operator.wallet: \"$_wallet\"", $str);
-    $str=preg_replace('(^storage.allocated-disk-space:.*)m', "storage.allocated-disk-space: $_storage GB", $str);
-    $str=preg_replace('(^operator.email:.*)m', "operator.email: \"$_emailId\"", $str);
-    $str=preg_replace('(^identity.cert-path:.*)m', "identity.cert-path: \"/root/.local/share/storj/identity/storagenode/identity.cert\"", $str);
-    $str=preg_replace('(^identity.key-path:.*)m', "identity.key-path: /root/.local/share/storj/ident
-    ity/storagenode/identity.key", $str);
+    $str=preg_replace('(^\s*server.address\s*:.*)m', "server.address: :$_address", $str);
+    $str=preg_replace('(^\s*operator.wallet\s*:.*)m', "operator.wallet: \"$_wallet\"", $str);
+    $str=preg_replace('(^\s*storage.allocated-disk-space\s*:.*)m', "storage.allocated-disk-space: ${_storage}GB", $str);
+    $str=preg_replace('(^\s*operator.email\s*:.*)m', "operator.email: \"$_emailId\"", $str);
+    $str=preg_replace('(^\s*identity.cert-path\s*:.*)m', "identity.cert-path: \"$_identity_directory/storagenode/identity.cert\"", $str);
+    $str=preg_replace('(^\s*identity.key-path\s*:.*)m', "identity.key-path: $_identity_directory/storagenode/identity.key", $str);
+    $str=preg_replace('(^\s*storage.path\s*:.*)m', "storage.path: $_config", $str);
 
     # Still to be handled
     $str=preg_replace('(^server.revocation-dburl:.*)m', "server.revocation-dburl: bolt://${_config}revocations.db", $str); 
