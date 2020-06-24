@@ -10,9 +10,9 @@ numLines=$(eval $cmd)
 process=$(basename $process)
 if [[ $numLines -ge 1 ]]
 then
-	echo "Service $service is running "
-	#echo 1
+	#echo "Service $service is running "
+	echo 1
 else
-	echo "Service $service is not running "
-	#echo 0
+	#echo "Service $service is not running "
+	echo 0
 fi

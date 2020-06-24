@@ -93,7 +93,7 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 	    logMessage("Identity php called for fetching STATUS!");
 
 	    $file = $data['LogFilePath'];
-	    $pid = file_get_contents("identity.pid");
+	    $pidFile = "identity.pid" ;
 	    $prgStartTime = $data['idGenStartTime'] ;
 	    $file = escapeshellarg($file);
 	    $lastline =  `tail -c160 $file | sed -e 's#\\r#\\n#g' | tail -1 ` ;
@@ -107,11 +107,17 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 		    logMessage("identity available at ${identityFilePath}");
 		    echo "identity available at ${identityFilePath}" ;
 	    }else{
-	    	$lastline = preg_replace('/\n$/', '', $lastline);
-		logMessage("STATUS: Identity generation in progress (LOG: $lastline)");
-		echo "Identity generation STATUS($date):<BR> " .
-			"Process ID: $pid , " .
-			    "Started at:  $prgStartTime <BR>" . $lastline ;
+		if( file_exists($pidFile)) {
+		    $pid = file_get_contents($pidFile);
+		    $lastline = preg_replace('/\n$/', '', $lastline);
+		    logMessage("STATUS: Identity generation in progress (LOG: $lastline)");
+		    echo "Identity generation STATUS($date):<BR> " .
+			    "Process ID: $pid , " .
+				"Started at:  $prgStartTime <BR>" . $lastline ;
+		} else {
+		    logMessage("STATUS: Unknown Identity generation status (no process running)");
+		    echo "Identity generation STATUS($date): Unknown <BR> " ;
+		}
 	    }
 
     }
