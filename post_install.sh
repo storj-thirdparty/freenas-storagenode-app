@@ -7,22 +7,24 @@ group=storj
 uid=3000
 gid=3000
 PLUGIN=storj
-module="StorJ"
+#module="StorJ"
 LOGFILE="/var/log/STORJ"
-BASEDIR="/root/storj_base"
 IDENTITYBINDIR="/tmp"
 IDENTITYZIP="${IDENTITYBINDIR}/identity_freebsd_amd64.zip"
 IDENTITYBIN="${IDENTITYBINDIR}/identity"
-IDENTITYDIR="/root/.local/share/storj/identity"
 STORBINDIR="/usr/local/www/storagenode/scripts"
 STORBIN="${STORBINDIR}/storagenode"
 STORBINZIP=/tmp/storagenode_freebsd_amd64.zip
+USERDATADIR=/mnt/storj_data
+
+BASEDIR="/home/storj"
 CFGDIR="$BASEDIR/config"
 YMLFILE="$CFGDIR/config.yaml"
+IDENTITYDIR="${BASEDIR}/identity"
 
 # Setup the user account first 
 pw groupadd -n ${group} -g ${gid}
-pw groupmod ${group} -m www
+#pw groupmod ${group} -m www
 mkdir -p /home
 pw useradd -n ${user} -u ${uid} -d /home/${user} -s /usr/sbin/nologin -g ${group} -m
 
@@ -33,21 +35,26 @@ service ${PLUGIN} start
 if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
 fi;
+if [ ! -d ${USERDATADIR} ]; then
+  mkdir -p ${USERDATADIR}/identity ${USERDATADIR}/storage ${USERDATADIR}/storj/storage 
+fi;
 cp -R "${pdir}/overlay/usr/local/www/storagenode" /usr/local/www/
 chown -R ${user}:${group} /usr/local/www/storagenode
-chmod ugo+rw /usr/local/www/storagenode/config.json
-cp -R "${pdir}/overlay/root/storj_base" /root
-cp -R "${pdir}/overlay/root/storj_base" /home/storj
+chmod ug+rw /usr/local/www/storagenode/config.json
+#cp -R "${pdir}/overlay/root/storj_base" /root
+#cp -R "${pdir}/overlay/root/storj_base" /home/storj
 chown -R ${user}:${group} /home/storj
 
 touch $LOGFILE
 chmod 666 $LOGFILE
+chown -R ${user}:${group} $LOGFILE
 
 echo `date` "Setup started from dir $0 => $pdir "	>> $LOGFILE
-echo `date` "BASEDIR($BASEDIR)"				>> $LOGFILE
+#echo `date` "BASEDIR($BASEDIR)"				>> $LOGFILE
 echo `date` "STORBIN($STORBIN)"				>> $LOGFILE
 echo `date` "LOGFILE($LOGFILE)"				>> $LOGFILE
 echo `date` "user($user)"				>> $LOGFILE
+echo `date` "group($group)"				>> $LOGFILE
 echo `date` "RUnning in context of user:" `id`		>> $LOGFILE
 
 if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-jail
@@ -88,18 +95,19 @@ chown -R ${user}:${group} $YMLFILE
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
+chown -R ${user}:${group} /usr/local/www/storagenode
+#find /usr/local/www/storagenode -type d -print | xargs chmod g+rx 
+
 mkdir -p ${IDENTITYDIR}/storagenode
 chown -R ${user}:${group} ${IDENTITYDIR}
-chown -R ${user}:${group} /usr/local/www/storagenode
-find /usr/local/www/storagenode -type d -print | xargs chmod g+rwx 
 
 # Enable the service
 sysrc -f /etc/rc.conf nginx_enable=YES
 sysrc -f /etc/rc.conf php_fpm_enable=YES
 sysrc -f /etc/rc.conf storj_enable="YES"
 
-service nginx start  2>/dev/null
-service php-fpm start  2>/dev/null
+service nginx start  > $LOGFILE 2>&1 
+service php-fpm start > $LOGFILE  2>&1 
 
 if [ "${1}" = "standard" ]; then
   v2srv_ip=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')

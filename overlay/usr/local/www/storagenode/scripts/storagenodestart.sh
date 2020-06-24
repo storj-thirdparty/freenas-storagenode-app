@@ -39,6 +39,12 @@ trust_cache_file="${config_folder}/trust-cache.json"
 
 addonparams="--metrics.app-suffix=-alpha --console.address=:14002 --metrics.interval=30m " 
 
+
+echo `date` "Running storagenode binary ${STORBIN} for setup" >> $LOG
+cmd="$STORAGE_NODE_BINARY_PATH setup --config-dir ${config_folder} --identity-dir ${identity_path} --server.revocation-dburl bolt://${config_folder}/revocations.db --storage2.trust.cache-path ${config_folder}/trust-cache.json --storage2.monitor.minimum-disk-space 500GB  "
+echo `date` " $cmd " >> $LOG 2>&1 
+$cmd >> $LOG 2>&1 
+
 echo $(date) " Starting Storagenode ---> " >> $LOG
 
 if [[ $# -ge 7 ]]
