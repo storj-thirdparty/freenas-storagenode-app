@@ -3,6 +3,7 @@
 PKGNAME="STORJ"
 LOG="/var/log/$PKGNAME"
 HOME=/root
+USER=storj
 echo `date` "Storagenode is starting" >> $LOG
 
 
@@ -40,10 +41,17 @@ trust_cache_file="${config_folder}/trust-cache.json"
 addonparams="--metrics.app-suffix=-alpha --console.address=:14002 --metrics.interval=30m " 
 
 
-echo `date` "Running storagenode binary ${STORBIN} for setup" >> $LOG
-cmd="$STORAGE_NODE_BINARY_PATH setup --config-dir ${config_folder} --identity-dir ${identity_path} --server.revocation-dburl bolt://${config_folder}/revocations.db --storage2.trust.cache-path ${config_folder}/trust-cache.json --storage2.monitor.minimum-disk-space 500GB  "
-echo `date` " $cmd " >> $LOG 2>&1 
-$cmd >> $LOG 2>&1 
+if [[ ! -f "${config_folder}/config.yaml" ]]
+then
+    echo `date` "Running storagenode binary ${STORBIN} for setup" >> $LOG
+    mkdir -p ${config_folder} ${config_folder}/storage >> $LOG 2>&1 
+    chown -R ${USER} ${config_folder} >> $LOG 2>&1 
+    cmd="$STORAGE_NODE_BINARY_PATH setup --config-dir ${config_folder} --identity-dir ${identity_path} --server.revocation-dburl bolt://${config_folder}/revocations.db --storage2.trust.cache-path ${config_folder}/trust-cache.json --storage2.monitor.minimum-disk-space 500GB  "
+    echo `date` " $cmd " >> $LOG 2>&1 
+    $cmd >> $LOG 2>&1 
+else
+    echo `date` " (storagenodestart) config yaml init not required" >> $LOG 
+fi
 
 echo $(date) " Starting Storagenode ---> " >> $LOG
 

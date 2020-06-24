@@ -36,7 +36,7 @@ if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
 fi;
 if [ ! -d ${USERDATADIR} ]; then
-  mkdir -p ${USERDATADIR}/identity ${USERDATADIR}/storage ${USERDATADIR}/storj/storage 
+  mkdir -p ${USERDATADIR}
 fi;
 cp -R "${pdir}/overlay/usr/local/www/storagenode" /usr/local/www/
 chown -R ${user}:${group} /usr/local/www/storagenode
