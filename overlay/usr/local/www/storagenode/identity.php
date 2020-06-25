@@ -83,7 +83,7 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 		updateConfig($data, $configFile);
 
 		$file = escapeshellarg($logFile);
-		$lastline =  `tail -c160 $file | sed -e 's#\\r#\\n#g' | tail -1 ` ;
+		$lastline =  `tail -c160 $file | sed -e 's#\r#\n#g' | tail -2 ` ;
 
 
 	    logMessage("Invoked identity generation program ($identityGenScriptPath) ");
@@ -96,7 +96,8 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 	    $pidFile = "identity.pid" ;
 	    $prgStartTime = $data['idGenStartTime'] ;
 	    $file = escapeshellarg($file);
-	    $lastline =  `tail -c160 $file | sed -e 's#\\r#\\n#g' | tail -1 ` ;
+	    $content = shell_exec("tail -c160 $file");
+	    $lastline=preg_replace('(^.*\\r)m', "", $content);
 
 	    if( identityExists($data) && validateExistence($data)) {
 		logMessage("STATUS: Identity exists ! returning message");
@@ -166,8 +167,7 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 		$newJsonString = json_encode($data);
 		$file = $data['LogFilePath'];
 		$file = escapeshellarg($file);
-	    #$lastline = `tail -c 59 $file `;
-		$lastline =  `tail -c160 $file | sed -e 's#\\r#\\n#g' | tail -1 ` ;															 
+		$lastline =  `tail -c160 $file | sed -e 's#\r#\n#g' | tail -2 ` ;
 		file_put_contents($configFile, $newJsonString);
 
 		logMessage("Invoked identity generation program ($identityGenScriptPath) ");

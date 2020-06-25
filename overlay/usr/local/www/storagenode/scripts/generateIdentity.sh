@@ -28,13 +28,9 @@ fi
 identityString="$1"
 user=www
 home=/root
-#identityBase=/share/Public/identity
 identityBase="${home}/.local/share/storj/identity"
 keyBase="$2"
 
-# identityLogFile="${identityBase}"/logs/storj_identity.log
-# identityDirPath="${identityBase}"/storagenode
-# identityBinary="${identityBase}".bin/identity
 identityBinary=/tmp/identity
 identityLogFile=/tmp/storj_identity.log
 
