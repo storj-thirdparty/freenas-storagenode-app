@@ -1,11 +1,12 @@
 # FreeNAS Storj storagenode plugin
-FreeNAS Storagenode plugin to support StorJ binary in FreeNAS Jailed environment
+FreeNAS Storagenode plugin to support STORJ storagenode binary in FreeNAS Jailed environment
 
 1. This is an iocage plugin. That means that this plugin uses the iocage commands to automatically configure and install the required packages and start the plugin in the jail 
 2. This plugin is developed for FreeNAS 11.x. 
+3. This includes the identity creation feature.
 
 
-* You wont be able to run multiple instance of this plugin as there may be issues with the port forwarding
+* User won't be able to run multiple instance of this plugin as there will be issues with the port forwarding.
 
 
 
@@ -48,7 +49,7 @@ Installation Steps
 	* **ui.json** : This contains the path of the UI for a particcular plugin
 	* **post_install.sh** :  This defines all the actions after the installation like download of the storagenode binary, managing file permissions
 	* **overlay/usr/local/etc**: Contains files for the configuraion of the ngnix webserver and php
-	* **overlay/usr/local/www/storagenode** : Contains all resources and the shell scripts required to the server the UI, and control the storagenode
+	* **overlay/usr/local/www/storagenode** : Contains all the resources and the shell scripts required to the server the UI, and control the storagenode
 	* **Install Path** : /root//usr/local/www/storagenode
  
 
@@ -56,18 +57,20 @@ Installation Steps
 
 Usage Instructions of Plugin
 =============================
-1. Please copy the identity file in the **/mnt/pool1/iocage/jails/{NAME OF STORAGENODE JAIL}/root/root/storj_base** your NAS.
-2. Identity should be created on other machine as it make take time on NAS. Folllow the instruction on the link https://documentation.storj.io/dependencies/identity
-3. Copy the whole identity folder in the folde mentioned in the step 1.
-4. Set parameters by clicking the each of the Setup items
-5. Put the path of the identity as copied in step 1 as **"/root/storj_base/identity/storagenode/ "**. Please remember that this is the absolute path with reference to the jail of the plugin
-6. Similarly please put the path of the folder being shared 
-7. **Email** Provide your emai id.
-8. **Bandwith**: The vlaue be more than 2 TB (Dont fill the unit)
-9. **Storage** : The vlaue be more than 500 GB  (Dont fill the unit)
-10. **Ethereum Wallet Address**: Please put the correct address and verify as the error will only be known after you press the start storagenode button.
-11. Press " **Start My Storagenode** " Button
-12. The area below the buttons will show the messages and error logs. If they dont apear just press the **"Config"** link on the menu side bar.
+1. The default user of the the plugin is 'storj' with usergorup 'storj'. uid=3000, gid= 3000. This user and user goup will require to be created on your NAS using GUI.
+2. The plugin ui can be access at "http://{IPADDRESS}:8443". At the first instance Wizard will appear to assist in passing necessary parameters. 
+3. Once the plugin in installed the user need to mount the folder which they want to share and use to create the identity. This wll require you to stop the jail. Please ensure that the folder has required read and write permissions for 'storj' user. It is not advisable to use a path inside the jail to  create identity as it will get destroyed if the plugin is removed.
+3. Please provide the absolute path with respect to the jail mount points to the fiels and this will require stopping the jail..
+4. You may copy the identity to the shared folder or create one if you have the authorization code from Storj. 
+5. Identity can created on other machine as NAS may take time. Folllow the instruction on the link https://documentation.storj.io/dependencies/identity
+6. Copy the whole identity folder in the folde mentioned in the step 1.
+7. Set parameters by clicking the each of the Setup items.
+8. Similarly please put the path of the folder being shared.
+9. **Email** Provide your emai id. This parameter is optional
+10. **Storage** : The value be more than 500 GB  (Dont fill the unit)
+11. **Ethereum Wallet Address**: Please put the correct address and verify as the error will only be known after you press the start storagenode button.
+12. Press " **Start My Storagenode** " Button to start the storagenode.
+13. The area below the buttons will show the messages and error logs. If they dont appear just press the **"Config"** link on the menu side bar.
 
 
 
@@ -75,9 +78,11 @@ Usage Instructions of Plugin
 Troubleshooting
 =================
 
-	*	You can use console of the iocage jail to torubleshoot the installation.
-	*	Type " iocage console <Name of the Jail>"
-	*	Type " cat /var/log/Storj" to see the log
+	*	You can use console of the iocage jail to troubleshoot the installation.
+	*	Type " iocage console <Name of the Jail>". The default name is Storjstoragenode
+	*	Type " cat /var/log/STORJ" to see the log.
+	*	The path of the storagenode binary at the path /usr/loca/www/storagenode/scripts
+	*	The identity binary is at /tmp.
 	
 
 

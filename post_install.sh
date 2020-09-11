@@ -2,31 +2,59 @@
 
 sa="/root/storj"
 pdir="${0%/*}"
-user="www"
-module="StorJ"
-LOGFILE="/var/log/StorJ"
-BASEDIR="/root/storj_base"
-STORBIN="/usr/local/www/storagenode/scripts/storagenode"
-CNFFILE="/usr/local/www/storagenode/scripts/output.csv"
+user=storj
+group=storj
+uid=3000
+gid=3000
+PLUGIN=storj
+#module="StorJ"
+LOGFILE="/var/log/STORJ"
+IDENTITYBINDIR="/tmp"
+IDENTITYZIP="${IDENTITYBINDIR}/identity_freebsd_amd64.zip"
+IDENTITYBIN="${IDENTITYBINDIR}/identity"
+STORBINDIR="/usr/local/www/storagenode/scripts"
+STORBIN="${STORBINDIR}/storagenode"
+STORBINZIP=/tmp/storagenode_freebsd_amd64.zip
+USERDATADIR=/mnt/storj_data
+
+BASEDIR="/home/storj"
 CFGDIR="$BASEDIR/config"
 YMLFILE="$CFGDIR/config.yaml"
+IDENTITYDIR="${BASEDIR}/identity"
+
+# Setup the user account first 
+pw groupadd -n ${group} -g ${gid}
+#pw groupmod ${group} -m www
+mkdir -p /home
+pw useradd -n ${user} -u ${uid} -d /home/${user} -s /usr/sbin/nologin -g ${group} -m
+
+chown -R ${user} /var/db/${PLUGIN}
+sysrc "${PLUGIN}_user=${user}"
+service ${PLUGIN} start
 
 if [ ! -d "/usr/local/www/storagenode" ]; then
   mkdir -p "/usr/local/www/storagenode"
 fi;
+if [ ! -d ${USERDATADIR} ]; then
+  mkdir -p ${USERDATADIR}
+fi;
 cp -R "${pdir}/overlay/usr/local/www/storagenode" /usr/local/www/
-chown -R ${user} /usr/local/www/storagenode
-cp -R "${pdir}/overlay/root/storj_base" /root
+chown -R ${user}:${group} /usr/local/www/storagenode
+chmod ug+rw /usr/local/www/storagenode/config.json
+#cp -R "${pdir}/overlay/root/storj_base" /root
+#cp -R "${pdir}/overlay/root/storj_base" /home/storj
+chown -R ${user}:${group} /home/storj
 
 touch $LOGFILE
 chmod 666 $LOGFILE
+chown -R ${user}:${group} $LOGFILE
 
 echo `date` "Setup started from dir $0 => $pdir "	>> $LOGFILE
-echo `date` "BASEDIR($BASEDIR)"				>> $LOGFILE
+#echo `date` "BASEDIR($BASEDIR)"				>> $LOGFILE
 echo `date` "STORBIN($STORBIN)"				>> $LOGFILE
 echo `date` "LOGFILE($LOGFILE)"				>> $LOGFILE
-echo `date` "CNFFILE($CNFFILE)"				>> $LOGFILE
 echo `date` "user($user)"				>> $LOGFILE
+echo `date` "group($group)"				>> $LOGFILE
 echo `date` "RUnning in context of user:" `id`		>> $LOGFILE
 
 if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-jail
@@ -41,34 +69,45 @@ if [ "${1}" = "standard" ]; then    # Only cp files when installing a standard-j
 
 fi
 
+# Fetch identity binary
+curl -L --proto-redir http,https -o ${IDENTITYZIP} https://github.com/storj/storj/releases/download/v1.6.3/identity_freebsd_amd64.zip
+unzip -d ${IDENTITYBINDIR} -j ${IDENTITYZIP}
+chmod a+x ${IDENTITYBIN}
+
+
 # Fetch storagenode binary and execute for basic content creation
-curl -o $STORBIN https://alpha.transfer.sh/RGnLr/storagenode
-chmod a+x $STORBIN
-echo `date` "Running storagenode binary for setup" >> $LOGFILE
-$STORBIN setup --config-dir $BASEDIR/config --identity-dir $BASEDIR/identity --server.revocation-dburl "bolt://$BASEDIR/config/revocations.db" --storage2.trust.cache-path "$BASEDIR/config/trust-cache.json"  >> $LOGFILE 2>&1 
+curl -L --proto-redir http,https -o ${STORBINZIP} https://github.com/storj/storj/releases/download/v1.6.3/storagenode_freebsd_amd64.zip
+unzip -d ${STORBINDIR} -j ${STORBINZIP}
+chmod a+x ${STORBIN}
+
+echo `date` "Running storagenode binary ${STORBIN} for setup" >> $LOGFILE
+cmd="$STORBIN setup --config-dir $BASEDIR/config --identity-dir $IDENTITYDIR --server.revocation-dburl bolt://$BASEDIR/config/revocations.db --storage2.trust.cache-path $BASEDIR/config/trust-cache.json --storage2.monitor.minimum-disk-space 12GB  "
+echo `date` " $cmd " >> $LOGFILE 2>&1 
+$cmd >> $LOGFILE 2>&1 
 
 ln -s /usr/local/www/storagenode/images/Storagenode_64.png /usr/local/www/storagenode/favicon.ico 
 
 chmod a+rwx $CFGDIR
 chmod a+rw $YMLFILE
-chown -R ${user}:${user} $BASEDIR
-chown -R ${user}:${user} $YMLFILE
+chown -R ${user}:${group} $BASEDIR
+chown -R ${user}:${group} $YMLFILE
 
 find /usr/local/www/storagenode -type f -name ".htaccess" -depth -exec rm -f {} \;
 find /usr/local/www/storagenode -type f -name ".empty" -depth -exec rm -f {} \;
 
-# Temporary fix
-cp -p $CNFFILE /usr/local/www/storagenode
-chown -R ${user} /usr/local/www/storagenode
-chmod a+rw $CNFFILE
+chown -R ${user}:${group} /usr/local/www/storagenode
+#find /usr/local/www/storagenode -type d -print | xargs chmod g+rx 
+
+mkdir -p ${IDENTITYDIR}/storagenode
+chown -R ${user}:${group} ${IDENTITYDIR}
 
 # Enable the service
 sysrc -f /etc/rc.conf nginx_enable=YES
 sysrc -f /etc/rc.conf php_fpm_enable=YES
 sysrc -f /etc/rc.conf storj_enable="YES"
 
-service nginx start  2>/dev/null
-service php-fpm start  2>/dev/null
+service nginx start  > $LOGFILE 2>&1 
+service php-fpm start > $LOGFILE  2>&1 
 
 if [ "${1}" = "standard" ]; then
   v2srv_ip=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
@@ -95,6 +134,4 @@ if [ "${1}" = "standard" ]; then
   }; end_report
 
 fi
-
-
 
