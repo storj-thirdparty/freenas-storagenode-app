@@ -1,10 +1,10 @@
 <?php
-include "identityLib.php";
+require_once("identityLib.php");
 # ------------------------------------------------------------------------
 #  Set variables
 # ------------------------------------------------------------------------
-$platformBase   = $_SERVER['DOCUMENT_ROOT'];
-$moduleBase     = $platformBase . dirname($_SERVER['PHP_SELF']) ;
+$platformBase   = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
+	$moduleBase     = $platformBase . dirname(filter_input(INPUT_SERVER, 'PHP_SELF')) ;
 $scriptsBase    = $moduleBase . '/scripts' ;
 
 $identityGenBinary = "/tmp/identity" ;
@@ -39,8 +39,8 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 
 
     logMessage( "================== identity.php invoked ================== ");
-    if (isset($_POST["createidval"])){
-		logMessage("Identity php called for creation purpose identityString : " . $_POST['identityString']);
+    if(filter_input(INPUT_POST, 'createidval')) {
+		logMessage("Identity php called for creation purpose identityString : " . filter_input(INPUT_POST, 'identityString'));
                 if( checkIdentityProcessRunning($identitypidFile) == true )  {
                     logMessage("Identity process is already running!!\n");
                     echo "Identity Process is already running!\n" ;
@@ -49,8 +49,8 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
                     logMessage("Identity process not found running, STARTING a new one!!\n");
 		}
 		// Saving Identity Path and Auth Key in JSON file.
-		$data['AuthKey'] = $_POST["identityString"];
-		$data['Identity'] = $_POST["identitypath"];
+		$data['AuthKey'] = filter_input(INPUT_POST, 'identityString');
+		$data['Identity'] = filter_input(INPUT_POST, 'identitypath');
 		storeConfig($data, $configFile);
 		
 		if(identityExists($data) && validateExistence($data)) {
@@ -61,14 +61,14 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 			logMessage("Identity Key doesn't exists. Going to start identity generation ");
 		}
 
-		if(!isset($_POST["identityString"]))  {
+		if(!filter_input(INPUT_POST, 'identityString'))  {
 		    logMessage("Identity String not provided");
 		    echo "Identity String not provided";
 		    return ;
 		}
-		$identityString = $_POST["identityString"] ;
+		$identityString = filter_input(INPUT_POST, 'identityString');
 		logMessage("value of identityString($identityString)");
-		$identityPath = $_POST["identitypath"] ;
+		$identityPath = filter_input(INPUT_POST, 'identitypath');
 		logMessage("value of identityPath($identityPath)");
 
 		$cmd = "$identityGenScriptPath $identityString $identityPath > ${logFile}.a 2>&1 & "; 
@@ -89,7 +89,7 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
 	    logMessage("Invoked identity generation program ($identityGenScriptPath) ");
 	    echo $lastline;
 
-    } else if (isset($_POST["status"]) || isset($inputs['status'])) {
+   } else if (filter_input(INPUT_POST, 'status') || isset($inputs['status'])) {
 	    logMessage("Identity php called for fetching STATUS!");
 
 	    $file = $data['LogFilePath'];
@@ -178,10 +178,10 @@ $identitypidFile   = $moduleBase  . DIRECTORY_SEPARATOR . 'identity.pid' ;
     else if (isset($data['identityCreationProcessCheck'])){
         echo checkIdentityProcessRunning($identitypidFile) ? "true" : "false" ;
     }
-    else if (isset($_POST["file_exist"])) {
+    else if (filter_input(INPUT_POST, 'fileexist')) {
 	logMessage("Identity php called for finding file existence");
 	checkIdentityFileExistence($data);
-    } else if(isset($_POST['isstopAjax']) && ($_POST['isstopAjax'] == 1)){
+   } else if(filter_input(INPUT_POST, 'isstopAjax') && filter_input(INPUT_POST, 'isstopAjax')){
 	// Stop Identity
 	killIdentityProcess($identitypidFile);
         exec("echo > $logFile ");

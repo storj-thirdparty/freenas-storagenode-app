@@ -8,7 +8,7 @@ STORBINZIP=/tmp/newstoragenode_freebsd_amd64.zip
 
 PKGNAME="STORJ"
 LOG="/var/log/$PKGNAME"
-echo $(date) "Request for updating storagenode binary " >> $LOG
+echo "$(date)" "Request for updating storagenode binary " >> $LOG
  
 
 echo "Extracting new stoage binary to $STORBIN "
